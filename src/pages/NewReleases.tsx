@@ -95,7 +95,7 @@ const NewReleases = () => {
                     <p className="text-xs text-foreground/60">Opened {movie.releaseDate}</p>
                     <button className="w-full mt-2 px-3 py-1.5 border border-border rounded-md text-xs font-medium hover:bg-card transition-colors flex items-center justify-center gap-2">
                       <Icon name="Plus" size={14} />
-                      WATCHLIST
+                      Сохранить
                     </button>
                   </div>
                 </div>
