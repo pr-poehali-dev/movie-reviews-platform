@@ -151,7 +151,16 @@ const Movie = () => {
                   <span className="text-foreground/60">из 10</span>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  className="gap-2 bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+                  }}
+                >
+                  <Icon name="Play" size={18} />
+                  Смотреть трейлер
+                </Button>
                 <Button 
                   variant="outline" 
                   className="gap-2"
