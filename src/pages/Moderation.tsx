@@ -44,15 +44,6 @@ const Moderation = () => {
     }
   };
 
-  const handleApproveReview = async (reviewId: number) => {
-    try {
-      await moderationService.approveReview(reviewId);
-      setReviews(reviews.filter(r => r.id !== reviewId));
-    } catch (error: any) {
-      alert(error.message || 'Ошибка одобрения');
-    }
-  };
-
   const handleRejectReview = async (reviewId: number) => {
     try {
       await moderationService.rejectReview(reviewId, rejectComment);
