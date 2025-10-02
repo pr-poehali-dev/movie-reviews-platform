@@ -130,6 +130,16 @@ const Profile = () => {
               <span className="text-sm text-foreground/60">
                 {user?.username}
               </span>
+              {user?.role === 'admin' && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/moderation')}
+                  className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
+                >
+                  <Icon name="ShieldCheck" size={18} />
+                  Модерация
+                </Button>
+              )}
               <Button variant="outline" onClick={handleLogout} className="gap-2">
                 <Icon name="LogOut" size={16} />
                 Выйти
