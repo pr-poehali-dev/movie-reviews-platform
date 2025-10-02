@@ -72,12 +72,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if target_user_id:
                 cursor.execute(
-                    "SELECT id, username, email, avatar_url, age, bio, status, created_at FROM users WHERE id = %s",
+                    "SELECT id, username, email, role, avatar_url, age, bio, status, created_at FROM users WHERE id = %s",
                     (target_user_id,)
                 )
             else:
                 cursor.execute(
-                    "SELECT id, username, email, avatar_url, age, bio, status, created_at FROM users WHERE id = %s",
+                    "SELECT id, username, email, role, avatar_url, age, bio, status, created_at FROM users WHERE id = %s",
                     (user_id,)
                 )
             
@@ -98,6 +98,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'id': user['id'],
                     'username': user['username'],
                     'email': user['email'],
+                    'role': user.get('role', 'user'),
                     'avatar_url': user['avatar_url'],
                     'age': user['age'],
                     'bio': user['bio'],
@@ -318,7 +319,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             
             cursor.execute(
-                "SELECT id, email, username FROM users WHERE email = %s AND password_hash = %s",
+                "SELECT id, email, username, role FROM users WHERE email = %s AND password_hash = %s",
                 (email, password_hash)
             )
             user = cursor.fetchone()
@@ -345,7 +346,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'user': {
                         'id': user['id'],
                         'email': user['email'],
-                        'username': user['username']
+                        'username': user['username'],
+                        'role': user.get('role', 'user')
                     }
                 }),
                 'isBase64Encoded': False
