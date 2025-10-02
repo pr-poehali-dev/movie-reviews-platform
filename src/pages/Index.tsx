@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import Notifications from '@/components/Notifications';
 import { authService, playlistsService } from '@/lib/auth';
@@ -14,6 +15,9 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('Главная');
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [savedPlaylistIds, setSavedPlaylistIds] = useState<Set<number>>(new Set());
+  const [trailerOpen, setTrailerOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const isAuthenticated = authService.isAuthenticated();
 
   const navItems = ['Главная', 'Рецензии', 'Подборки', 'Новинки', 'Блог'];
@@ -93,6 +97,7 @@ const Index = () => {
       rating: 4.5,
       image: '/img/08a4b6ca-8db2-40f6-bdb2-7207f8212a02.jpg',
       description: 'Атмосферный триллер о тайнах, скрытых в глубинах человеческой психики',
+      trailer: '4jzU6LT7vA4',
     },
     {
       id: 2,
@@ -101,6 +106,7 @@ const Index = () => {
       rating: 4.0,
       image: '/img/6123fba7-0fbb-463e-85d1-b1287769cbbe.jpg',
       description: 'Эпическое путешествие через неизведанные земли в поисках истины',
+      trailer: '4jzU6LT7vA4',
     },
     {
       id: 3,
@@ -109,6 +115,7 @@ const Index = () => {
       rating: 4.8,
       image: '/img/f0518987-94b5-4651-814e-9c829686e61f.jpg',
       description: 'Визуально ошеломляющий взгляд на будущее человечества',
+      trailer: '4jzU6LT7vA4',
     },
   ];
 
@@ -306,14 +313,40 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
-                  variant="ghost" 
-                  className="w-full gap-2 text-primary hover:text-primary/80 hover:bg-primary/10"
-                  onClick={() => navigate(`/review/${movie.id}`)}
-                >
-                  Читать полностью
-                  <Icon name="ChevronRight" size={16} />
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    className="flex-1 gap-2 text-primary hover:text-primary/80 hover:bg-primary/10"
+                    onClick={() => navigate(`/review/${movie.id}`)}
+                  >
+                    Читать
+                    <Icon name="BookOpen" size={16} />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMovie(movie);
+                      setTrailerOpen(true);
+                    }}
+                    className="hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Icon name="Play" size={18} />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMovie(movie);
+                      setShareOpen(true);
+                    }}
+                    className="hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Icon name="Share2" size={18} />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
