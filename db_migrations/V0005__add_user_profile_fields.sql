@@ -1,0 +1,5 @@
+ALTER TABLE t_p58175694_movie_reviews_platfo.users 
+ADD COLUMN avatar_url TEXT,
+ADD COLUMN age INTEGER,
+ADD COLUMN bio TEXT,
+ADD COLUMN status VARCHAR(100);

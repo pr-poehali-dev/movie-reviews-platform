@@ -9,6 +9,11 @@ export interface User {
   email: string;
   username: string;
   role?: string;
+  avatar_url?: string;
+  age?: number;
+  bio?: string;
+  status?: string;
+  created_at?: string;
 }
 
 export interface AuthResponse {
@@ -89,6 +94,48 @@ export const authService = {
   isAdmin(): boolean {
     const user = this.getUser();
     return user?.role === 'admin';
+  },
+
+  async getProfile(userId?: number): Promise<User> {
+    const token = this.getToken();
+    const url = userId ? `${AUTH_API_URL}?user_id=${userId}` : AUTH_API_URL;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка загрузки профиля');
+    }
+
+    return response.json();
+  },
+
+  async updateProfile(data: Partial<User>): Promise<User> {
+    const token = this.getToken();
+    
+    const response = await fetch(AUTH_API_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка обновления профиля');
+    }
+
+    const updatedUser = await response.json();
+    this.setUser(updatedUser);
+    return updatedUser;
   },
 };
 

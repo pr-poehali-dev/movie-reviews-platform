@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
-import { authService, collectionsService, playlistsService } from '@/lib/auth';
+import { authService, collectionsService, playlistsService, User } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import EditProfile from '@/components/EditProfile';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState(authService.getUser());
+  const [user, setUser] = useState<User | null>(authService.getUser());
   const [collections, setCollections] = useState<any[]>([]);
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -20,9 +23,26 @@ const Profile = () => {
       return;
     }
 
+    loadProfile();
     loadCollections();
     loadPlaylists();
   }, [navigate]);
+
+  const loadProfile = async () => {
+    try {
+      const profileData = await authService.getProfile();
+      setUser(profileData);
+      authService.setUser(profileData);
+    } catch (error: any) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleProfileUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
 
   const loadCollections = async () => {
     try {
@@ -121,40 +141,70 @@ const Profile = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <h2 className="text-4xl font-bold mb-2">Мой профиль</h2>
-            <p className="text-foreground/60">
-              Управляйте своими коллекциями и избранными фильмами
-            </p>
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-4xl font-bold mb-2">Мой профиль</h2>
+                <p className="text-foreground/60">
+                  Управляйте своими коллекциями и избранными фильмами
+                </p>
+              </div>
+              {user && <EditProfile user={user} onUpdate={handleProfileUpdate} />}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-lg">Email</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-foreground/80">{user?.email}</p>
-              </CardContent>
-            </Card>
+          <Card className="bg-card border-border mb-12">
+            <CardContent className="p-8">
+              {profileLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Icon name="Loader2" size={48} className="animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="flex flex-col md:flex-row gap-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <Avatar className="h-32 w-32">
+                      <AvatarImage src={user?.avatar_url} alt={user?.username} />
+                      <AvatarFallback className="text-4xl">
+                        {user?.username?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  
+                  <div className="flex-1 space-y-6">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-2">{user?.username}</h3>
+                      {user?.status && (
+                        <p className="text-foreground/60 italic">{user.status}</p>
+                      )}
+                    </div>
 
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-lg">Имя пользователя</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-foreground/80">{user?.username}</p>
-              </CardContent>
-            </Card>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-sm text-foreground/60 mb-1">Email</p>
+                        <p className="font-medium">{user?.email}</p>
+                      </div>
+                      {user?.age && (
+                        <div>
+                          <p className="text-sm text-foreground/60 mb-1">Возраст</p>
+                          <p className="font-medium">{user.age} лет</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm text-foreground/60 mb-1">Сохранено фильмов</p>
+                        <p className="text-2xl font-bold text-primary">{collections.length}</p>
+                      </div>
+                    </div>
 
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-lg">Сохранено фильмов</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-primary">{collections.length}</p>
-              </CardContent>
-            </Card>
-          </div>
+                    {user?.bio && (
+                      <div>
+                        <p className="text-sm text-foreground/60 mb-2">О себе</p>
+                        <p className="text-foreground/80 whitespace-pre-wrap">{user.bio}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
