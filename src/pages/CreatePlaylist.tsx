@@ -16,6 +16,14 @@ const CreatePlaylist = () => {
   const [step, setStep] = useState<'playlist' | 'movies'>('playlist');
   const [playlistId, setPlaylistId] = useState<number | null>(null);
   const [moviesCount, setMoviesCount] = useState(0);
+  const [addedMovies, setAddedMovies] = useState<Array<{
+    title: string;
+    titleEn: string;
+    year?: number;
+    genre: string;
+    rating: number;
+    coverUrl: string;
+  }>>([]);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingMovieCover, setUploadingMovieCover] = useState(false);
@@ -213,6 +221,16 @@ const CreatePlaylist = () => {
         description: movieData.description,
       });
       
+      const newMovie = {
+        title: movieData.title,
+        titleEn: movieData.titleEn,
+        year: movieData.year ? parseInt(movieData.year) : undefined,
+        genre: movieData.genre,
+        rating: movieData.rating ? parseFloat(movieData.rating) : 0,
+        coverUrl: movieCoverUrl,
+      };
+      
+      setAddedMovies(prev => [...prev, newMovie]);
       setMoviesCount(prev => prev + 1);
       setMovieData({
         title: '',
@@ -599,6 +617,49 @@ const CreatePlaylist = () => {
                     </Button>
                   </div>
                 </form>
+
+                {addedMovies.length > 0 && (
+                  <div className="mt-8 pt-8 border-t border-border">
+                    <h3 className="text-xl font-bold mb-4">Добавленные фильмы ({addedMovies.length})</h3>
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {addedMovies.map((movie, index) => (
+                        <div key={index} className="flex gap-4 p-3 bg-background rounded-lg border border-border hover:border-primary/50 transition-colors">
+                          {movie.coverUrl ? (
+                            <img 
+                              src={movie.coverUrl} 
+                              alt={movie.title}
+                              className="w-16 h-24 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-16 h-24 bg-muted rounded flex items-center justify-center">
+                              <Icon name="Film" size={24} className="text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold truncate">{movie.title}</h4>
+                            {movie.titleEn && (
+                              <p className="text-sm text-foreground/60 truncate">{movie.titleEn}</p>
+                            )}
+                            <div className="flex items-center gap-3 mt-1 text-sm text-foreground/60">
+                              {movie.year && <span>{movie.year}</span>}
+                              {movie.genre && <span>•</span>}
+                              {movie.genre && <span>{movie.genre}</span>}
+                              {movie.rating > 0 && (
+                                <>
+                                  <span>•</span>
+                                  <div className="flex items-center gap-1">
+                                    <Icon name="Star" size={14} className="text-yellow-500 fill-yellow-500" />
+                                    <span>{movie.rating}</span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
