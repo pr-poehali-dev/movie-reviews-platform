@@ -237,7 +237,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute(
-                    "UPDATE reviews SET movie_id = NULL WHERE id = %s AND user_id = %s",
+                    "DELETE FROM reviews WHERE id = %s AND user_id = %s",
                     (review_id, user_id)
                 )
                 conn.commit()
@@ -338,7 +338,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor.execute(
-                "UPDATE user_collections SET movie_id = NULL WHERE user_id = %s AND movie_id = %s",
+                "DELETE FROM user_collections WHERE user_id = %s AND movie_id = %s",
                 (user_id, int(movie_id))
             )
             conn.commit()
