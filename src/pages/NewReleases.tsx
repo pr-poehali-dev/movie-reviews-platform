@@ -3,15 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
-import { authService } from '@/lib/auth';
+import { authService, collectionsService } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 const NewReleases = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const user = authService.getUser();
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
+  const [savingMovieId, setSavingMovieId] = useState<number | null>(null);
 
   const newMovies = [
     {
@@ -23,8 +26,47 @@ const NewReleases = () => {
       releaseDate: 'Sep 26, 2025',
       image: 'https://cdn.poehali.dev/files/16ffbc60-c6ea-46ae-9a24-55cb683daade.jpg',
       trailer: '4jzU6LT7vA4',
+      description: 'Социальная драма в оболочке боевика, где каждый выстрел звучит как метафора неравенства, страха и одиночества',
     },
   ];
+
+  const handleSaveMovie = async (e: React.MouseEvent, movie: any) => {
+    e.stopPropagation();
+    
+    if (!authService.isAuthenticated()) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите, чтобы сохранять фильмы',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
+    setSavingMovieId(movie.id);
+    try {
+      await collectionsService.addToCollection({
+        id: movie.id,
+        title: movie.title,
+        genre: movie.genre,
+        rating: movie.rating / 10,
+        image: movie.image,
+        description: movie.description,
+      });
+      toast({
+        title: 'Сохранено',
+        description: 'Фильм добавлен в вашу коллекцию',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingMovieId(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,8 +135,16 @@ const NewReleases = () => {
                       {movie.title}
                     </h3>
                     <p className="text-xs text-foreground/60">Opened {movie.releaseDate}</p>
-                    <button className="w-full mt-2 px-3 py-1.5 border border-border rounded-md text-xs font-medium hover:bg-card transition-colors flex items-center justify-center gap-2">
-                      <Icon name="Plus" size={14} />
+                    <button 
+                      onClick={(e) => handleSaveMovie(e, movie)}
+                      disabled={savingMovieId === movie.id}
+                      className="w-full mt-2 px-3 py-1.5 border border-border rounded-md text-xs font-medium hover:bg-card transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {savingMovieId === movie.id ? (
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                      ) : (
+                        <Icon name="Plus" size={14} />
+                      )}
                       Сохранить
                     </button>
                   </div>
