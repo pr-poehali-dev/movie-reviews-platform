@@ -49,6 +49,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             playlist_id = query_params.get('id')
             user_filter = query_params.get('user_id')
             
+            current_user_id = None
+            auth_token = headers.get('x-auth-token') or headers.get('X-Auth-Token')
+            if auth_token:
+                try:
+                    payload = jwt.decode(auth_token, jwt_secret, algorithms=['HS256'])
+                    current_user_id = payload['user_id']
+                except:
+                    pass
+            
             if playlist_id:
                 cursor.execute(
                     """SELECT p.*, u.username as author_name,
@@ -56,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        FROM playlists p
                        LEFT JOIN users u ON p.user_id = u.id
                        WHERE p.id = %s AND (p.status = 'approved' AND p.is_public = true OR p.user_id = %s)""",
-                    (playlist_id, user_filter or 0)
+                    (playlist_id, current_user_id or 0)
                 )
                 playlist = cursor.fetchone()
                 

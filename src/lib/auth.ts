@@ -249,11 +249,18 @@ export const playlistsService = {
   },
 
   async getPlaylist(id: number): Promise<any> {
+    const token = authService.getToken();
+    const headers: any = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['X-Auth-Token'] = token;
+    }
+    
     const response = await fetch(`${PLAYLISTS_API_URL}?id=${id}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {
