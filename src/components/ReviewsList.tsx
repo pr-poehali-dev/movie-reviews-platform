@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ interface ReviewsListProps {
 }
 
 const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,9 +93,12 @@ const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
         <h4 className="text-xl font-bold mb-2">Пока нет рецензий</h4>
         <p className="text-foreground/60 mb-4">Станьте первым, кто напишет рецензию!</p>
         {!currentUser && (
-          <p className="text-sm text-foreground/50">
+          <button 
+            onClick={() => navigate('/register')}
+            className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors"
+          >
             Регистрация в секунду, чтобы написать
-          </p>
+          </button>
         )}
       </Card>
     );
