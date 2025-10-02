@@ -690,7 +690,8 @@ export const reviewsService = {
 
       return response.json();
     } catch (error) {
-      return [];\n    }
+      return [];
+    }
   },
 
   async createReview(data: {
