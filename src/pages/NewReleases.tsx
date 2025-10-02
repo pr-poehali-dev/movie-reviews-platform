@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { authService } from '@/lib/auth';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const NewReleases = () => {
   const navigate = useNavigate();
@@ -102,34 +104,7 @@ const NewReleases = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <img src="/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg" alt="KINOVKUS.RU" className="h-10 w-10 rounded-lg object-cover" />
-              <h1 className="text-2xl font-black tracking-tight">KINOVKUS.RU</h1>
-            </button>
-
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <Button variant="ghost" onClick={() => navigate('/profile')}>
-                    {user.username}
-                  </Button>
-                  <Button onClick={() => navigate('/create-playlist')}>
-                    Создать подборку
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={() => navigate('/login')}>Войти</Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
@@ -191,6 +166,7 @@ const NewReleases = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
