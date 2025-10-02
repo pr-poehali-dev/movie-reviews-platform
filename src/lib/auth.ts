@@ -264,7 +264,7 @@ export const playlistsService = {
     return response.json();
   },
 
-  async createPlaylist(title: string, description: string, isPublic: boolean = true): Promise<any> {
+  async createPlaylist(title: string, description: string, isPublic: boolean = true, coverImageUrl?: string): Promise<any> {
     const token = authService.getToken();
     
     const response = await fetch(PLAYLISTS_API_URL, {
@@ -278,6 +278,7 @@ export const playlistsService = {
         title,
         description,
         is_public: isPublic,
+        cover_image_url: coverImageUrl || null,
       }),
     });
 

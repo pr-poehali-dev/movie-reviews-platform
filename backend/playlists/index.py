@@ -149,6 +149,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 title = body_data.get('title', '').strip()
                 description = body_data.get('description', '').strip()
                 is_public = body_data.get('is_public', True)
+                cover_image_url = body_data.get('cover_image_url')
                 
                 if not title:
                     return {
@@ -159,9 +160,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute(
-                    """INSERT INTO playlists (user_id, title, description, is_public, status)
-                       VALUES (%s, %s, %s, %s, 'pending') RETURNING *""",
-                    (user_id, title, description, is_public)
+                    """INSERT INTO playlists (user_id, title, description, is_public, status, cover_image_url)
+                       VALUES (%s, %s, %s, %s, 'pending', %s) RETURNING *""",
+                    (user_id, title, description, is_public, cover_image_url)
                 )
                 playlist = cursor.fetchone()
                 conn.commit()

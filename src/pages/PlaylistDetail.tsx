@@ -111,6 +111,15 @@ const PlaylistDetail = () => {
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
+          {playlist.cover_image_url && (
+            <div className="w-full h-80 rounded-xl overflow-hidden mb-8">
+              <img
+                src={playlist.cover_image_url}
+                alt={playlist.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           <Card className="bg-card border-border mb-8 p-8">
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">

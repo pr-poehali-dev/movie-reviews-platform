@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,9 @@ const CreatePlaylist = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,6 +27,52 @@ const CreatePlaylist = () => {
     navigate('/login');
     return null;
   }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите изображение',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default');
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dsk1jxlgd/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      setCoverImageUrl(data.secure_url);
+      
+      toast({
+        title: 'Успешно',
+        description: 'Обложка загружена',
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить изображение',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +92,8 @@ const CreatePlaylist = () => {
       const response = await playlistsService.createPlaylist(
         formData.title,
         formData.description,
-        formData.isPublic
+        formData.isPublic,
+        coverImageUrl
       );
       
       toast({
@@ -128,6 +178,59 @@ const CreatePlaylist = () => {
                     rows={4}
                     className="bg-background border-border resize-none"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Обложка подборки</Label>
+                  <div className="flex gap-4 items-start">
+                    <div className="flex-1">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingImage}
+                        className="w-full gap-2"
+                      >
+                        {uploadingImage ? (
+                          <>
+                            <Icon name="Loader2" size={16} className="animate-spin" />
+                            Загрузка...
+                          </>
+                        ) : (
+                          <>
+                            <Icon name="Upload" size={16} />
+                            Выбрать обложку
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {coverImageUrl && (
+                      <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-border">
+                        <img
+                          src={coverImageUrl}
+                          alt="Обложка"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCoverImageUrl('')}
+                          className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-black rounded-full"
+                        >
+                          <Icon name="X" size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-foreground/60">
+                    Рекомендуемый размер: 1200×630 пикселей
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-background rounded-lg border border-border">

@@ -92,9 +92,18 @@ const Playlists = () => {
               {playlists.map((playlist) => (
                 <Card
                   key={playlist.id}
-                  className="group bg-card border-border hover:border-primary/50 transition-all cursor-pointer"
+                  className="group bg-card border-border hover:border-primary/50 transition-all cursor-pointer overflow-hidden"
                   onClick={() => navigate(`/playlist/${playlist.id}`)}
                 >
+                  {playlist.cover_image_url && (
+                    <div className="w-full h-48 overflow-hidden bg-muted">
+                      <img
+                        src={playlist.cover_image_url}
+                        alt={playlist.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <Icon name="List" size={24} className="text-primary" />
