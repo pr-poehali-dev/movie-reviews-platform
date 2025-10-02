@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Главная');
 
   const navItems = ['Главная', 'Рецензии', 'Подборки', 'Новинки', 'Блог'];
@@ -119,7 +121,11 @@ const Index = () => {
               <span className="text-sm text-foreground/60">4.5 из 5</span>
             </div>
             <div className="flex gap-4">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 gap-2">
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 gap-2"
+                onClick={() => navigate('/review/1')}
+              >
                 <Icon name="BookOpen" size={20} />
                 Читать рецензию
               </Button>
@@ -178,7 +184,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="ghost" className="w-full gap-2 text-primary hover:text-primary/80 hover:bg-primary/10">
+                <Button 
+                  variant="ghost" 
+                  className="w-full gap-2 text-primary hover:text-primary/80 hover:bg-primary/10"
+                  onClick={() => navigate(`/review/${movie.id}`)}
+                >
                   Читать полностью
                   <Icon name="ChevronRight" size={16} />
                 </Button>
