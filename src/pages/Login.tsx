@@ -48,9 +48,12 @@ const Login = () => {
         navigate('/profile');
       }
     } catch (error: any) {
+      console.error('Login/Register error:', error);
       toast({
-        title: 'Ошибка',
-        description: error.message,
+        title: 'Ошибка подключения',
+        description: error.message === 'Failed to fetch' 
+          ? 'Не удалось связаться с сервером. Проверьте интернет-соединение и попробуйте снова.'
+          : error.message,
         variant: 'destructive',
       });
     } finally {

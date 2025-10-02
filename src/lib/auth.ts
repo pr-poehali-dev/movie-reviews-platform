@@ -24,46 +24,60 @@ export interface AuthResponse {
 
 export const authService = {
   async register(email: string, password: string, username: string): Promise<AuthResponse> {
-    const response = await fetch(AUTH_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'register',
-        email,
-        password,
-        username,
-      }),
-    });
+    try {
+      const response = await fetch(AUTH_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'register',
+          email,
+          password,
+          username,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка регистрации');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка регистрации');
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.message === 'Failed to fetch') {
+        throw new Error('Не удалось подключиться к серверу');
+      }
+      throw error;
     }
-
-    return response.json();
   },
 
   async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await fetch(AUTH_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'login',
-        email,
-        password,
-      }),
-    });
+    try {
+      const response = await fetch(AUTH_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'login',
+          email,
+          password,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка входа');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка входа');
+      }
+
+      return response.json();
+    } catch (error: any) {
+      if (error.message === 'Failed to fetch') {
+        throw new Error('Не удалось подключиться к серверу');
+      }
+      throw error;
     }
-
-    return response.json();
   },
 
   setToken(token: string) {
