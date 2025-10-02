@@ -26,11 +26,8 @@ const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
       const data = await reviewsService.getReviews(movieId, userId);
       setReviews(data);
     } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message,
-        variant: 'destructive',
-      });
+      console.error('Error loading reviews:', error);
+      // Молча обрабатываем ошибку - не показываем toast
     } finally {
       setLoading(false);
     }

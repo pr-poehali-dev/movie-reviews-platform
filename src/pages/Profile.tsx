@@ -51,11 +51,7 @@ const Profile = () => {
         setSavedPlaylists(savedPlaylistsData);
       } catch (error) {
         console.error('Error loading profile:', error);
-        toast({
-          title: 'Ошибка',
-          description: 'Не удалось загрузить профиль',
-          variant: 'destructive',
-        });
+        // Молча обрабатываем ошибку
       } finally {
         setLoading(false);
         setProfileLoading(false);
