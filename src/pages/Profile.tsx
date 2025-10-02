@@ -24,50 +24,32 @@ const Profile = () => {
       return;
     }
 
-    loadProfile();
-    loadCollections();
-    loadPlaylists();
-  }, [navigate]);
-
-  const loadProfile = async () => {
-    try {
+    const initProfile = async () => {
       const profileData = await authService.getProfile();
       setUser(profileData);
-      authService.setUser(profileData);
-    } catch (error: any) {
-      console.error('Error loading profile:', error);
-    } finally {
       setProfileLoading(false);
-    }
-  };
+      
+      const [collectionsData, playlistsData] = await Promise.all([
+        collectionsService.getCollections().catch((e) => {
+          console.error('Error loading collections:', e);
+          return [];
+        }),
+        playlistsService.getUserPlaylists(profileData.id).catch((e) => {
+          console.error('Error loading playlists:', e);
+          return [];
+        })
+      ]);
+      
+      setCollections(collectionsData);
+      setPlaylists(playlistsData);
+      setLoading(false);
+    };
+    
+    initProfile();
+  }, [navigate]);
 
   const handleProfileUpdate = (updatedUser: User) => {
     setUser(updatedUser);
-  };
-
-  const loadCollections = async () => {
-    try {
-      const data = await collectionsService.getCollections();
-      setCollections(data);
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadPlaylists = async () => {
-    if (!user) return;
-    try {
-      const data = await playlistsService.getUserPlaylists(user.id);
-      setPlaylists(data);
-    } catch (error: any) {
-      console.error('Error loading playlists:', error);
-    }
   };
 
   const handleLogout = () => {
