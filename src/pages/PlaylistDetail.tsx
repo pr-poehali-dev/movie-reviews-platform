@@ -58,9 +58,10 @@ const PlaylistDetail = () => {
   };
 
   const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - Math.ceil(rating);
+    const normalizedRating = Math.min(Math.max(rating / 2, 0), 5);
+    const fullStars = Math.floor(normalizedRating);
+    const hasHalfStar = normalizedRating % 1 >= 0.5;
+    const emptyStars = Math.max(5 - fullStars - (hasHalfStar ? 1 : 0), 0);
 
     return (
       <div className="flex gap-0.5">
