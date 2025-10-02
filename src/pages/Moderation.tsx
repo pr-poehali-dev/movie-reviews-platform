@@ -18,26 +18,10 @@ const Moderation = () => {
   const [activeTab, setActiveTab] = useState('playlists');
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const adminKey = urlParams.get('admin_key');
-    
-    if (adminKey === 'kinovkus2025') {
-      const currentUser = authService.getUser();
-      if (currentUser) {
-        authService.setUser({ ...currentUser, role: 'admin' });
-        window.location.href = '/moderation';
-        return;
-      } else {
-        localStorage.setItem('temp_admin', 'true');
-      }
-    }
-    
-    const tempAdmin = localStorage.getItem('temp_admin');
-    if (!authService.isAdmin() && !tempAdmin) {
-      navigate('/');
+    if (!authService.isAuthenticated()) {
+      navigate('/login');
       return;
     }
-    
     loadContent();
   }, [navigate, activeTab]);
 
@@ -98,8 +82,7 @@ const Moderation = () => {
     }
   };
 
-  const tempAdmin = localStorage.getItem('temp_admin');
-  if (!authService.isAdmin() && !tempAdmin) {
+  if (!authService.isAuthenticated()) {
     return null;
   }
 
