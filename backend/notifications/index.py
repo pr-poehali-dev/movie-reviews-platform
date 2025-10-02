@@ -19,7 +19,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token',
                 'Access-Control-Max-Age': '86400'
             },
@@ -125,6 +125,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'message': 'Уведомления отмечены как прочитанные'}),
                     'isBase64Encoded': False
                 }
+        
+        elif method == 'DELETE':
+            query_params = event.get('queryStringParameters', {}) or {}
+            notification_id = query_params.get('id')
+            
+            if notification_id:
+                cursor.execute(
+                    "UPDATE notifications SET title = NULL WHERE id = %s AND user_id = %s",
+                    (notification_id, user_id)
+                )
+            else:
+                cursor.execute(
+                    "UPDATE notifications SET title = NULL WHERE user_id = %s",
+                    (user_id,)
+                )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                'body': json.dumps({'message': 'Уведомления удалены'}),
+                'isBase64Encoded': False
+            }
         
         return {
             'statusCode': 405,

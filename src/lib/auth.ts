@@ -417,4 +417,25 @@ export const notificationsService = {
       throw new Error(error.error || 'Ошибка отметки уведомлений');
     }
   },
+
+  async deleteNotification(notificationId?: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const url = notificationId 
+      ? `${NOTIFICATIONS_API_URL}?id=${notificationId}`
+      : NOTIFICATIONS_API_URL;
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка удаления уведомлений');
+    }
+  },
 };

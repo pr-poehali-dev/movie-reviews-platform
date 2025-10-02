@@ -45,6 +45,16 @@ const Notifications = () => {
     }
   };
 
+  const handleDeleteNotification = async (notificationId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await notificationsService.deleteNotification(notificationId);
+      await loadNotifications();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
   const handleNotificationClick = async (notification: any) => {
     if (!notification.is_read) {
       await handleMarkAsRead(notification.id);
@@ -127,16 +137,26 @@ const Notifications = () => {
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex gap-3 p-3 w-full">
+                  <div className="flex gap-3 p-3 w-full group/item">
                     <div className="flex-shrink-0 mt-1">
                       {getNotificationIcon(notification.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium text-sm">{notification.title}</p>
-                        {!notification.is_read && (
-                          <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1" />
-                        )}
+                        <div className="flex items-center gap-1">
+                          {!notification.is_read && (
+                            <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1" />
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                            onClick={(e) => handleDeleteNotification(notification.id, e)}
+                          >
+                            <Icon name="X" size={14} className="text-muted-foreground hover:text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-xs text-foreground/60 mt-1 line-clamp-2">
                         {notification.message}
