@@ -125,6 +125,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     (user_id, playlist_id)
                 )
                 playlist = cursor.fetchone()
+                
+                cursor.execute(
+                    """INSERT INTO notifications (user_id, type, title, message, playlist_id)
+                       VALUES (%s, 'playlist_approved', %s, %s, %s)""",
+                    (
+                        playlist['user_id'],
+                        'Подборка одобрена',
+                        f"Ваша подборка \"{playlist['title']}\" прошла модерацию и теперь доступна всем пользователям!",
+                        playlist_id
+                    )
+                )
+                
                 conn.commit()
                 
                 return {
@@ -144,6 +156,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     (comment, user_id, playlist_id)
                 )
                 playlist = cursor.fetchone()
+                
+                notification_message = f"Ваша подборка \"{playlist['title']}\" была отклонена модератором."
+                if comment:
+                    notification_message += f" Причина: {comment}"
+                
+                cursor.execute(
+                    """INSERT INTO notifications (user_id, type, title, message, playlist_id)
+                       VALUES (%s, 'playlist_rejected', %s, %s, %s)""",
+                    (
+                        playlist['user_id'],
+                        'Подборка отклонена',
+                        notification_message,
+                        playlist_id
+                    )
+                )
+                
                 conn.commit()
                 
                 return {

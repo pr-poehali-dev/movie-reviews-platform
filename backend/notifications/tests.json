@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get user notifications",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-Auth-Token": "user_token_here"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "notifications": "array",
+        "unread_count": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Mark all as read",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Auth-Token": "user_token_here"
+      },
+      "body": {
+        "action": "mark_read"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import Notifications from '@/components/Notifications';
 import { authService, playlistsService } from '@/lib/auth';
 
 const Index = () => {
@@ -103,6 +104,7 @@ const Index = () => {
                   className="pl-10 w-64 bg-card border-border"
                 />
               </div>
+              {authService.isAuthenticated() && <Notifications />}
               {authService.isAdmin() && (
                 <Button 
                   variant="outline" 

@@ -2,6 +2,7 @@ const AUTH_API_URL = 'https://functions.poehali.dev/c11d4d5e-526c-44e6-be66-fc48
 const COLLECTIONS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
 const PLAYLISTS_API_URL = 'https://functions.poehali.dev/d1c32b2a-126c-4ae1-a4b3-bbc8d7ddede1';
 const MODERATION_API_URL = 'https://functions.poehali.dev/5e9858b0-439e-4bbf-bcbd-e1bc42cc796b';
+const NOTIFICATIONS_API_URL = 'https://functions.poehali.dev/a5fa6d9e-26b8-4f93-b64c-162092c3ce0e';
 
 export interface User {
   id: number;
@@ -372,6 +373,48 @@ export const moderationService = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Ошибка отклонения подборки');
+    }
+  },
+};
+
+export const notificationsService = {
+  async getNotifications(): Promise<any> {
+    const token = authService.getToken();
+    
+    const response = await fetch(NOTIFICATIONS_API_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка загрузки уведомлений');
+    }
+
+    return response.json();
+  },
+
+  async markAsRead(notificationId?: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(NOTIFICATIONS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        action: 'mark_read',
+        notification_id: notificationId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка отметки уведомлений');
     }
   },
 };
