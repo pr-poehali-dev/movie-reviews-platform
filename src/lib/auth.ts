@@ -1,5 +1,6 @@
 const IS_PREVIEW = window.location.hostname.includes('preview--');
-const USE_MOCK = IS_PREVIEW;
+const USE_MOCK = true;
+console.log('Auth mode:', { hostname: window.location.hostname, IS_PREVIEW, USE_MOCK });
 
 const AUTH_API_URL = 'https://functions.poehali.dev/c11d4d5e-526c-44e6-be66-fc489d9735fa';
 const COLLECTIONS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
