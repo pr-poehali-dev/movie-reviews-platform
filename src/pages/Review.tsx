@@ -52,9 +52,11 @@ const Review = () => {
   const movie = movieData[id || '1'] || movieData['1'];
 
   const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - Math.ceil(rating);
+    const normalizedRating = Math.max(0, Math.min(10, rating));
+    const scaledRating = (normalizedRating / 10) * 5;
+    const fullStars = Math.floor(scaledRating);
+    const hasHalfStar = scaledRating % 1 >= 0.5;
+    const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
 
     return (
       <div className="flex gap-1">
@@ -140,7 +142,7 @@ const Review = () => {
                 <div className="flex items-center gap-4">
                   {renderStars(movie.rating)}
                   <span className="text-4xl font-bold">{movie.rating}</span>
-                  <span className="text-foreground/60">из 5</span>
+                  <span className="text-foreground/60">из 10</span>
                 </div>
               </div>
               <div className="flex gap-3">
