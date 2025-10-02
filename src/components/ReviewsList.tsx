@@ -89,7 +89,12 @@ const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
       <Card className="bg-card border-border p-12 text-center">
         <Icon name="MessageSquare" size={64} className="mx-auto mb-4 text-muted-foreground" />
         <h4 className="text-xl font-bold mb-2">Пока нет рецензий</h4>
-        <p className="text-foreground/60">Станьте первым, кто напишет рецензию!</p>
+        <p className="text-foreground/60 mb-4">Станьте первым, кто напишет рецензию!</p>
+        {!currentUser && (
+          <p className="text-sm text-foreground/50">
+            Регистрация в секунду, чтобы написать
+          </p>
+        )}
       </Card>
     );
   }
