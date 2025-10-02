@@ -17,6 +17,7 @@ const Movie = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [reviewsKey, setReviewsKey] = useState(0);
   const [trailerOpen, setTrailerOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const movieData: Record<string, any> = {
     '1': {
@@ -202,7 +203,11 @@ const Movie = () => {
                   )}
                   {authService.isAuthenticated() ? 'Сохранить' : 'Войдите, чтобы сохранить'}
                 </Button>
-                <Button variant="outline" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => setShareOpen(true)}
+                >
                   <Icon name="Share2" size={18} />
                   Поделиться
                 </Button>
@@ -304,6 +309,64 @@ const Movie = () => {
               allowFullScreen
               className="rounded-lg"
             />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="max-w-md">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Поделиться фильмом</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.href);
+                  const text = encodeURIComponent(`${movie.title} - ${movie.description}`);
+                  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+                }}
+              >
+                <Icon name="Send" size={20} className="text-[#0088cc]" />
+                Telegram
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.href);
+                  const title = encodeURIComponent(movie.title);
+                  window.open(`https://vk.com/share.php?url=${url}&title=${title}`, '_blank');
+                }}
+              >
+                <Icon name="Share2" size={20} className="text-[#0077FF]" />
+                VK
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.href);
+                  const text = encodeURIComponent(`${movie.title} - ${movie.description}`);
+                  window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+                }}
+              >
+                <Icon name="MessageCircle" size={20} className="text-[#25D366]" />
+                WhatsApp
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.href);
+                  const text = encodeURIComponent(movie.title);
+                  window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+                }}
+              >
+                <Icon name="Twitter" size={20} className="text-[#1DA1F2]" />
+                Twitter
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
