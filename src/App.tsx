@@ -12,6 +12,10 @@ import Playlists from "./pages/Playlists";
 import CreatePlaylist from "./pages/CreatePlaylist";
 import PlaylistDetail from "./pages/PlaylistDetail";
 import Moderation from "./pages/Moderation";
+import Reviews from "./pages/Reviews";
+import Collections from "./pages/Collections";
+import NewReleases from "./pages/NewReleases";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +35,10 @@ const App = () => (
           <Route path="/create-playlist" element={<CreatePlaylist />} />
           <Route path="/playlist/:id" element={<PlaylistDetail />} />
           <Route path="/moderation" element={<Moderation />} />
+          <Route path="/reviews" element={<Reviews />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/new-releases" element={<NewReleases />} />
+          <Route path="/blog" element={<Blog />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

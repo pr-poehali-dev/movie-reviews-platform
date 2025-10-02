@@ -83,17 +83,36 @@ const Index = () => {
             </div>
             
             <div className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setActiveSection(item)}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    activeSection === item ? 'text-primary' : 'text-foreground/80'
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
+              <button
+                onClick={() => navigate('/')}
+                className="text-sm font-medium transition-colors hover:text-primary text-foreground/80"
+              >
+                Главная
+              </button>
+              <button
+                onClick={() => navigate('/reviews')}
+                className="text-sm font-medium transition-colors hover:text-primary text-foreground/80"
+              >
+                Рецензии
+              </button>
+              <button
+                onClick={() => navigate('/collections')}
+                className="text-sm font-medium transition-colors hover:text-primary text-foreground/80"
+              >
+                Подборки
+              </button>
+              <button
+                onClick={() => navigate('/new-releases')}
+                className="text-sm font-medium transition-colors hover:text-primary text-foreground/80"
+              >
+                Новинки
+              </button>
+              <button
+                onClick={() => navigate('/blog')}
+                className="text-sm font-medium transition-colors hover:text-primary text-foreground/80"
+              >
+                Блог
+              </button>
             </div>
 
             <div className="flex items-center gap-4">
