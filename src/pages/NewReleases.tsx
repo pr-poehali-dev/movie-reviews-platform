@@ -12,12 +12,41 @@ const NewReleases = () => {
   const navigate = useNavigate();
   const user = authService.getUser();
 
-  const newMovies: any[] = [];
+  const newMovies = [
+    {
+      id: 1,
+      title: 'Битва за битвой',
+      titleEn: 'One Battle After Another',
+      year: 2025,
+      genre: 'Боевик, Триллер, Драма, Криминал',
+      director: 'Пол Томас Андерсон',
+      country: 'США',
+      budget: '$130 000 000',
+      rating: 7.5,
+      image: 'https://cdn.poehali.dev/files/16ffbc60-c6ea-46ae-9a24-55cb683daade.jpg',
+      releaseDate: '2025-09-25',
+      description: 'Социальная драма в оболочке боевика, где каждый выстрел звучит как метафора неравенства, страха и одиночества. Леонардо Ди Каприо в роли обыкновенного человека.',
+      cast: [
+        'Леонардо ДиКаприо',
+        'Шон Пенн',
+        'Чейз Инфинити',
+        'Бенисио Дель Торо',
+        'Тейяна Тейлор',
+        'Реджина Холл',
+        'Джеймс Рэйтерман',
+        'Тони Голдуин',
+        'Карлос Макфарланд',
+        'Джон Хугенэккер',
+      ],
+    },
+  ];
 
   const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - Math.ceil(rating);
+    const normalizedRating = Math.max(0, Math.min(10, rating));
+    const scaledRating = (normalizedRating / 10) * 5;
+    const fullStars = Math.floor(scaledRating);
+    const hasHalfStar = scaledRating % 1 >= 0.5;
+    const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
 
     return (
       <div className="flex gap-0.5">
