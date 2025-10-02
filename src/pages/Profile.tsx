@@ -340,7 +340,7 @@ const Profile = () => {
           </div>
 
           <div>
-            <h3 className="text-2xl font-bold mb-6">Моя коллекция</h3>
+            <h3 className="text-2xl font-bold mb-6">Моя коллекция фильмов</h3>
 
             {loading ? (
               <div className="flex items-center justify-center py-12">
