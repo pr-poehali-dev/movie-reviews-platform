@@ -97,7 +97,7 @@ const NewReleases = () => {
                 <Card
                   key={movie.id}
                   className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all cursor-pointer"
-                  onClick={() => navigate(`/review/${movie.id}`)}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
                 >
                   <div className="relative h-64 overflow-hidden">
                     <img
