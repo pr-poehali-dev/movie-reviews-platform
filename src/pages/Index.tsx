@@ -92,29 +92,11 @@ const Index = () => {
   const featuredMovies = [
     {
       id: 1,
-      title: 'Тёмные воды',
-      genre: 'Триллер',
-      rating: 4.5,
+      title: 'Битва за битвой',
+      genre: 'Боевик',
+      rating: 8.7,
       image: '/img/08a4b6ca-8db2-40f6-bdb2-7207f8212a02.jpg',
-      description: 'Атмосферный триллер о тайнах, скрытых в глубинах человеческой психики',
-      trailer: '4jzU6LT7vA4',
-    },
-    {
-      id: 2,
-      title: 'Горизонт событий',
-      genre: 'Приключения',
-      rating: 4.0,
-      image: '/img/6123fba7-0fbb-463e-85d1-b1287769cbbe.jpg',
-      description: 'Эпическое путешествие через неизведанные земли в поисках истины',
-      trailer: '4jzU6LT7vA4',
-    },
-    {
-      id: 3,
-      title: 'Неоновая бездна',
-      genre: 'Научная фантастика',
-      rating: 4.8,
-      image: '/img/f0518987-94b5-4651-814e-9c829686e61f.jpg',
-      description: 'Визуально ошеломляющий взгляд на будущее человечества',
+      description: 'Взрывной боевик о непобедимом бойце, который сражается за справедливость',
       trailer: '4jzU6LT7vA4',
     },
   ];
@@ -490,6 +472,103 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <Dialog open={trailerOpen} onOpenChange={setTrailerOpen}>
+        <DialogContent className="max-w-4xl p-0 bg-black border-0">
+          <div className="relative aspect-video">
+            <button
+              onClick={() => setTrailerOpen(false)}
+              className="absolute -top-12 right-0 z-50 text-white hover:text-primary transition-colors"
+            >
+              <Icon name="X" size={32} />
+            </button>
+            {selectedMovie && (
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${selectedMovie.trailer}?autoplay=1`}
+                title="Трейлер фильма"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="max-w-md">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Поделиться фильмом</h2>
+            <Button
+              variant="outline"
+              className="w-full gap-2 justify-center"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.origin + `/movie/${selectedMovie?.id}`);
+                toast({
+                  title: 'Ссылка скопирована',
+                  description: 'Ссылка на фильм скопирована в буфер обмена',
+                });
+              }}
+            >
+              <Icon name="Copy" size={20} />
+              Скопировать ссылку
+            </Button>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.origin + `/movie/${selectedMovie?.id}`);
+                  const text = encodeURIComponent(`${selectedMovie?.title} - ${selectedMovie?.description}`);
+                  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+                }}
+              >
+                <Icon name="Send" size={20} className="text-[#0088cc]" />
+                Telegram
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.origin + `/movie/${selectedMovie?.id}`);
+                  const title = encodeURIComponent(selectedMovie?.title || '');
+                  window.open(`https://vk.com/share.php?url=${url}&title=${title}`, '_blank');
+                }}
+              >
+                <Icon name="Share2" size={20} className="text-[#0077FF]" />
+                VK
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.origin + `/movie/${selectedMovie?.id}`);
+                  const text = encodeURIComponent(`${selectedMovie?.title} - ${selectedMovie?.description}`);
+                  window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+                }}
+              >
+                <Icon name="MessageCircle" size={20} className="text-[#25D366]" />
+                WhatsApp
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 justify-start"
+                onClick={() => {
+                  const url = encodeURIComponent(window.location.origin + `/movie/${selectedMovie?.id}`);
+                  const text = encodeURIComponent(selectedMovie?.title || '');
+                  window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+                }}
+              >
+                <Icon name="Twitter" size={20} className="text-[#1DA1F2]" />
+                Twitter
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
