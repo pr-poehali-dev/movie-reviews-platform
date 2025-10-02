@@ -66,8 +66,8 @@ const Login = () => {
             onClick={() => navigate('/')}
             className="inline-flex items-center gap-2 mb-6 hover:opacity-80 transition-opacity"
           >
-            <Icon name="Film" size={40} className="text-primary" />
-            <h1 className="text-3xl font-black">CINEMA</h1>
+            <img src="/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg" alt="KINOVKUS.RU" className="h-10 w-10 rounded-lg object-cover" />
+            <h1 className="text-3xl font-black">KINOVKUS.RU</h1>
           </button>
         </div>
 

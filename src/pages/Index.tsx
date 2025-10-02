@@ -78,8 +78,8 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <Icon name="Film" size={32} className="text-primary" />
-              <h1 className="text-2xl font-black tracking-tight">CINEMA</h1>
+              <img src="/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg" alt="KINOVKUS.RU" className="h-10 w-10 rounded-lg object-cover" />
+              <h1 className="text-2xl font-black tracking-tight">KINOVKUS.RU</h1>
             </div>
             
             <div className="hidden md:flex items-center gap-8">
@@ -332,7 +332,7 @@ const Index = () => {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Icon name="Film" size={28} className="text-primary" />
-                <h3 className="text-xl font-black">CINEMA</h3>
+                <h3 className="text-xl font-black">KINOVKUS.RU</h3>
               </div>
               <p className="text-foreground/60 text-sm">
                 Ваш гид в мире кино. Обзоры, рецензии и подборки лучших фильмов.

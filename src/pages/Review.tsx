@@ -76,8 +76,8 @@ const Review = () => {
               onClick={() => navigate('/')}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <Icon name="Film" size={32} className="text-primary" />
-              <h1 className="text-2xl font-black tracking-tight">CINEMA</h1>
+              <img src="/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg" alt="KINOVKUS.RU" className="h-10 w-10 rounded-lg object-cover" />
+              <h1 className="text-2xl font-black tracking-tight">KINOVKUS.RU</h1>
             </button>
             
             <Button 
