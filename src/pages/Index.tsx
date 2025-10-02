@@ -94,9 +94,9 @@ const Index = () => {
       id: 1,
       title: 'Битва за битвой',
       genre: 'Боевик',
-      rating: 8.7,
-      image: '/img/08a4b6ca-8db2-40f6-bdb2-7207f8212a02.jpg',
-      description: 'Взрывной боевик о непобедимом бойце, который сражается за справедливость',
+      rating: 7.5,
+      image: 'https://cdn.poehali.dev/files/16ffbc60-c6ea-46ae-9a24-55cb683daade.jpg',
+      description: 'Социальная драма в оболочке боевика о борьбе за семью',
       trailer: '4jzU6LT7vA4',
     },
   ];
@@ -210,7 +210,7 @@ const Index = () => {
       <div 
         className="relative h-[600px] bg-gradient-to-b from-black via-black/80 to-background flex items-center"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(26,26,26,1)), url('/img/08a4b6ca-8db2-40f6-bdb2-7207f8212a02.jpg')`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(26,26,26,1)), url('https://cdn.poehali.dev/files/fe887040-31f7-40a7-9475-80446b215f6e.jpeg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -221,15 +221,15 @@ const Index = () => {
               <span className="text-primary text-sm font-medium">Рецензия дня</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-black mb-4 tracking-tight">
-              Тёмные воды
+              Битва за битвой
             </h2>
             <p className="text-lg text-foreground/80 mb-6 leading-relaxed">
-              Атмосферный триллер о тайнах, скрытых в глубинах человеческой психики. 
-              Режиссёр мастерски играет со светом и тенью, создавая незабываемый визуальный опыт.
+              Социальная драма в оболочке боевика, где каждый выстрел звучит как метафора неравенства, страха и одиночества. 
+              ДиКаприо создаёт один из самых сильных образов в своей карьере.
             </p>
             <div className="flex gap-4 mb-6">
               {renderStars(4.5)}
-              <span className="text-sm text-foreground/60">4.5 из 5</span>
+              <span className="text-sm text-foreground/60">7.5 из 10</span>
             </div>
             <div className="flex gap-4">
               <Button 
