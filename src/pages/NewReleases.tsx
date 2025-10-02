@@ -28,6 +28,17 @@ const NewReleases = () => {
       trailer: '4jzU6LT7vA4',
       description: 'Социальная драма в оболочке боевика, где каждый выстрел звучит как метафора неравенства, страха и одиночества',
     },
+    {
+      id: 2,
+      title: 'Орудия',
+      genre: 'Ужасы, Детектив',
+      rating: 0,
+      audienceScore: 0,
+      releaseDate: 'Oct 02, 2025',
+      image: '/img/a2c85fb4-908d-40c4-b94d-b7a6432abdf4.jpg',
+      trailer: 'dQw4w9WgXcQ',
+      description: 'Однажды ночью в небольшом городке 17 младшеклассников одновременно убежали из дома и бесследно исчезли',
+    },
   ];
 
   const handleSaveMovie = async (e: React.MouseEvent, movie: any) => {
