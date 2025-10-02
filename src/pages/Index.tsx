@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import { authService } from '@/lib/auth';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -88,6 +89,24 @@ const Index = () => {
                   className="pl-10 w-64 bg-card border-border"
                 />
               </div>
+              {authService.isAuthenticated() ? (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/profile')}
+                  className="gap-2"
+                >
+                  <Icon name="User" size={18} />
+                  <span className="hidden md:inline">Профиль</span>
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => navigate('/login')}
+                  className="gap-2 bg-primary hover:bg-primary/90"
+                >
+                  <Icon name="LogIn" size={18} />
+                  <span className="hidden md:inline">Войти</span>
+                </Button>
+              )}
               <Button size="icon" variant="ghost" className="md:hidden">
                 <Icon name="Menu" size={24} />
               </Button>

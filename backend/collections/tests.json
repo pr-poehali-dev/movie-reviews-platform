@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get user collections requires auth",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Add movie to collection requires auth",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "movie_id": 1,
+        "movie_title": "Test Movie"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

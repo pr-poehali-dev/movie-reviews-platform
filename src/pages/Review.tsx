@@ -1,12 +1,17 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { authService, collectionsService } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const Review = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
 
   const movieData: Record<string, any> = {
     '1': {
@@ -134,9 +139,46 @@ const Review = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="gap-2">
-                  <Icon name="Bookmark" size={18} />
-                  Сохранить
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  disabled={isSaving || !authService.isAuthenticated()}
+                  onClick={async () => {
+                    if (!authService.isAuthenticated()) {
+                      navigate('/login');
+                      return;
+                    }
+                    setIsSaving(true);
+                    try {
+                      await collectionsService.addToCollection({
+                        id: parseInt(id || '1'),
+                        title: movie.title,
+                        genre: movie.genre,
+                        rating: movie.rating,
+                        image: movie.image,
+                        description: movie.description,
+                      });
+                      toast({
+                        title: 'Успешно',
+                        description: 'Фильм добавлен в коллекцию',
+                      });
+                    } catch (error: any) {
+                      toast({
+                        title: 'Ошибка',
+                        description: error.message,
+                        variant: 'destructive',
+                      });
+                    } finally {
+                      setIsSaving(false);
+                    }
+                  }}
+                >
+                  {isSaving ? (
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                  ) : (
+                    <Icon name="Bookmark" size={18} />
+                  )}
+                  {authService.isAuthenticated() ? 'Сохранить' : 'Войдите, чтобы сохранить'}
                 </Button>
                 <Button variant="outline" className="gap-2">
                   <Icon name="Share2" size={18} />
