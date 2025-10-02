@@ -293,10 +293,14 @@ export const playlistsService = {
   async addMovieToPlaylist(playlistId: number, movie: {
     id: number;
     title: string;
-    genre: string;
+    title_en?: string;
+    year?: number;
+    genre?: string;
+    director?: string;
     rating: number;
-    image: string;
-    description: string;
+    image?: string;
+    cover_url?: string;
+    description?: string;
   }): Promise<any> {
     const token = authService.getToken();
     
@@ -311,9 +315,13 @@ export const playlistsService = {
         playlist_id: playlistId,
         movie_id: movie.id,
         movie_title: movie.title,
+        movie_title_en: movie.title_en,
+        movie_year: movie.year,
         movie_genre: movie.genre,
+        movie_director: movie.director,
         movie_rating: movie.rating,
         movie_image: movie.image,
+        movie_cover_url: movie.cover_url,
         movie_description: movie.description,
       }),
     });

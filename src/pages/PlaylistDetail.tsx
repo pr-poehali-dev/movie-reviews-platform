@@ -165,16 +165,35 @@ const PlaylistDetail = () => {
           </Card>
 
           <div>
-            <h3 className="text-2xl font-bold mb-6">Фильмы в подборке</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">Фильмы в подборке</h3>
+              {isOwner && !playlist.is_approved && (
+                <Button
+                  onClick={() => navigate(`/playlist/${id}/add-movie`)}
+                  className="gap-2 bg-primary hover:bg-primary/90"
+                >
+                  <Icon name="Plus" size={16} />
+                  Добавить фильм
+                </Button>
+              )}
+            </div>
 
             {movies.length === 0 ? (
               <Card className="bg-card border-border p-12 text-center">
                 <Icon name="Film" size={64} className="mx-auto mb-4 text-muted-foreground" />
                 <h4 className="text-xl font-bold mb-2">В подборке пока нет фильмов</h4>
                 {isOwner ? (
-                  <p className="text-foreground/60">
-                    Перейдите к рецензиям и добавьте фильмы в подборку
-                  </p>
+                  <>
+                    <p className="text-foreground/60 mb-6">
+                      Добавьте фильмы, чтобы наполнить вашу подборку
+                    </p>
+                    <Button
+                      onClick={() => navigate(`/playlist/${id}/add-movie`)}
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      Добавить первый фильм
+                    </Button>
+                  </>
                 ) : (
                   <p className="text-foreground/60">
                     Автор ещё не добавил фильмы в эту подборку
@@ -188,43 +207,63 @@ const PlaylistDetail = () => {
                     key={movie.id}
                     className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all"
                   >
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-64 overflow-hidden">
                       <img
-                        src={movie.movie_image}
+                        src={movie.movie_cover_url || movie.movie_image || '/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg'}
                         alt={movie.movie_title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                      <div className="absolute top-4 right-4">
-                        <div className="bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
-                          {renderStars(movie.movie_rating)}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                      {movie.movie_rating > 0 && (
+                        <div className="absolute top-3 right-3">
+                          <div className="bg-black/80 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1">
+                            {renderStars(movie.movie_rating)}
+                          </div>
+                        </div>
+                      )}
+                      {movie.movie_year && (
+                        <div className="absolute top-3 left-3">
+                          <div className="bg-primary/90 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold">
+                            {movie.movie_year}
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="text-lg font-bold mb-1 text-white">{movie.movie_title}</h3>
+                        {movie.movie_title_en && (
+                          <p className="text-xs text-white/70 mb-2">{movie.movie_title_en}</p>
+                        )}
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          {movie.movie_genre && (
+                            <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-white">
+                              {movie.movie_genre}
+                            </span>
+                          )}
+                          {movie.movie_director && (
+                            <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-white">
+                              {movie.movie_director}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{movie.movie_title}</CardTitle>
-                      <CardDescription className="line-clamp-2">
-                        {movie.movie_description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 gap-2"
-                        onClick={() => navigate(`/review/${movie.movie_id}`)}
-                      >
-                        <Icon name="Eye" size={16} />
-                        Смотреть
-                      </Button>
+                    {movie.movie_description && (
+                      <CardHeader>
+                        <CardDescription className="line-clamp-3 text-sm">
+                          {movie.movie_description}
+                        </CardDescription>
+                      </CardHeader>
+                    )}
+                    <CardContent className="flex gap-2 pt-4">
                       {isOwner && !playlist.is_approved && (
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-2 text-destructive border-destructive hover:bg-destructive hover:text-white"
+                          className="flex-1 gap-2 text-destructive border-destructive hover:bg-destructive hover:text-white"
                           onClick={() => handleRemoveMovie(movie.movie_id)}
                         >
                           <Icon name="Trash2" size={16} />
+                          Удалить
                         </Button>
                       )}
                     </CardContent>

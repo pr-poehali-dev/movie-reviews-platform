@@ -178,16 +178,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 playlist_id = body_data.get('playlist_id')
                 movie_id = body_data.get('movie_id')
                 movie_title = body_data.get('movie_title')
+                movie_title_en = body_data.get('movie_title_en')
                 movie_genre = body_data.get('movie_genre')
                 movie_rating = body_data.get('movie_rating')
+                movie_year = body_data.get('movie_year')
+                movie_director = body_data.get('movie_director')
                 movie_image = body_data.get('movie_image')
+                movie_cover_url = body_data.get('movie_cover_url')
                 movie_description = body_data.get('movie_description')
                 
-                if not playlist_id or not movie_id:
+                if not playlist_id or not movie_title:
                     return {
                         'statusCode': 400,
                         'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                        'body': json.dumps({'error': 'playlist_id и movie_id обязательны'}),
+                        'body': json.dumps({'error': 'playlist_id и movie_title обязательны'}),
                         'isBase64Encoded': False
                     }
                 
@@ -207,11 +211,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor.execute(
                     """INSERT INTO playlist_movies 
-                       (playlist_id, movie_id, movie_title, movie_genre, movie_rating, movie_image, movie_description)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s)
-                       ON CONFLICT (playlist_id, movie_id) DO NOTHING
+                       (playlist_id, movie_id, movie_title, movie_title_en, movie_genre, movie_rating, 
+                        movie_year, movie_director, movie_image, movie_cover_url, movie_description)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                        RETURNING *""",
-                    (playlist_id, movie_id, movie_title, movie_genre, movie_rating, movie_image, movie_description)
+                    (playlist_id, movie_id or 0, movie_title, movie_title_en, movie_genre, movie_rating, 
+                     movie_year, movie_director, movie_image, movie_cover_url, movie_description)
                 )
                 movie = cursor.fetchone()
                 conn.commit()
