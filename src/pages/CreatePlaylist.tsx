@@ -15,6 +15,7 @@ const CreatePlaylist = () => {
   const { toast } = useToast();
   const [step, setStep] = useState<'playlist' | 'movies'>('playlist');
   const [playlistId, setPlaylistId] = useState<number | null>(null);
+  const [moviesCount, setMoviesCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingMovieCover, setUploadingMovieCover] = useState(false);
@@ -212,6 +213,7 @@ const CreatePlaylist = () => {
         description: movieData.description,
       });
       
+      setMoviesCount(prev => prev + 1);
       setMovieData({
         title: '',
         titleEn: '',
@@ -225,7 +227,7 @@ const CreatePlaylist = () => {
       
       toast({
         title: 'Успешно',
-        description: 'Фильм добавлен! Можете добавить ещё',
+        description: `Фильм добавлен! Всего в подборке: ${moviesCount + 1}`,
       });
     } catch (error: any) {
       toast({
@@ -406,10 +408,18 @@ const CreatePlaylist = () => {
           ) : (
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle>Добавление фильмов</CardTitle>
-                <CardDescription>
-                  Добавьте фильмы в вашу подборку. После добавления каждого фильма форма очистится для следующего
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Добавление фильмов</CardTitle>
+                    <CardDescription>
+                      Добавьте фильмы в вашу подборку. После добавления каждого фильма форма очистится для следующего
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <Icon name="Film" size={20} className="text-primary" />
+                    <span className="text-2xl font-bold text-primary">{moviesCount}</span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleAddMovie} className="space-y-6">
