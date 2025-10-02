@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get pending playlists (admin)",
+      "method": "GET",
+      "path": "/?status=pending",
+      "headers": {
+        "X-Auth-Token": "admin_token_here"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "playlists": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Approve playlist",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Auth-Token": "admin_token_here"
+      },
+      "body": {
+        "action": "approve",
+        "playlist_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { authService, collectionsService } from '@/lib/auth';
+import { authService, collectionsService, playlistsService } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
@@ -11,6 +11,7 @@ const Profile = () => {
   const { toast } = useToast();
   const [user, setUser] = useState(authService.getUser());
   const [collections, setCollections] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const Profile = () => {
     }
 
     loadCollections();
+    loadPlaylists();
   }, [navigate]);
 
   const loadCollections = async () => {
@@ -34,6 +36,16 @@ const Profile = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPlaylists = async () => {
+    if (!user) return;
+    try {
+      const data = await playlistsService.getUserPlaylists(user.id);
+      setPlaylists(data);
+    } catch (error: any) {
+      console.error('Error loading playlists:', error);
     }
   };
 
@@ -142,6 +154,80 @@ const Profile = () => {
                 <p className="text-3xl font-bold text-primary">{collections.length}</p>
               </CardContent>
             </Card>
+          </div>
+
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">Мои подборки</h3>
+              <Button 
+                onClick={() => navigate('/create-playlist')}
+                className="gap-2 bg-primary hover:bg-primary/90"
+              >
+                <Icon name="Plus" size={16} />
+                Создать подборку
+              </Button>
+            </div>
+
+            {playlists.length === 0 ? (
+              <Card className="bg-card border-border p-8 text-center">
+                <Icon name="List" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-foreground/60">
+                  У вас пока нет подборок. Создайте первую!
+                </p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {playlists.map((playlist) => (
+                  <Card 
+                    key={playlist.id}
+                    className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/playlist/${playlist.id}`)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg mb-2">{playlist.title}</CardTitle>
+                          <CardDescription className="line-clamp-1">
+                            {playlist.description || 'Без описания'}
+                          </CardDescription>
+                        </div>
+                        {playlist.status === 'pending' && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-md text-xs text-yellow-500">
+                            <Icon name="Clock" size={12} />
+                            На модерации
+                          </div>
+                        )}
+                        {playlist.status === 'approved' && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/50 rounded-md text-xs text-green-500">
+                            <Icon name="Check" size={12} />
+                            Одобрено
+                          </div>
+                        )}
+                        {playlist.status === 'rejected' && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-red-500/20 border border-red-500/50 rounded-md text-xs text-red-500">
+                            <Icon name="X" size={12} />
+                            Отклонено
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-4 text-sm text-foreground/60">
+                        <div className="flex items-center gap-1">
+                          <Icon name="Film" size={14} />
+                          <span>{playlist.movies_count || 0}</span>
+                        </div>
+                        {playlist.moderation_comment && playlist.status === 'rejected' && (
+                          <div className="flex-1 text-red-400 text-xs">
+                            {playlist.moderation_comment}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

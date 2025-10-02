@@ -1,11 +1,13 @@
 const AUTH_API_URL = 'https://functions.poehali.dev/c11d4d5e-526c-44e6-be66-fc489d9735fa';
 const COLLECTIONS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
 const PLAYLISTS_API_URL = 'https://functions.poehali.dev/d1c32b2a-126c-4ae1-a4b3-bbc8d7ddede1';
+const MODERATION_API_URL = 'https://functions.poehali.dev/5e9858b0-439e-4bbf-bcbd-e1bc42cc796b';
 
 export interface User {
   id: number;
   email: string;
   username: string;
+  role?: string;
 }
 
 export interface AuthResponse {
@@ -81,6 +83,11 @@ export const authService = {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  },
+
+  isAdmin(): boolean {
+    const user = this.getUser();
+    return user?.role === 'admin';
   },
 };
 
@@ -300,6 +307,71 @@ export const playlistsService = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Ошибка удаления подборки');
+    }
+  },
+};
+
+export const moderationService = {
+  async getPendingPlaylists(): Promise<any[]> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${MODERATION_API_URL}?status=pending`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка загрузки подборок на модерации');
+    }
+
+    const data = await response.json();
+    return data.playlists || [];
+  },
+
+  async approvePlaylist(playlistId: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(MODERATION_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        action: 'approve',
+        playlist_id: playlistId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка одобрения подборки');
+    }
+  },
+
+  async rejectPlaylist(playlistId: number, comment: string): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(MODERATION_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        action: 'reject',
+        playlist_id: playlistId,
+        comment,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка отклонения подборки');
     }
   },
 };

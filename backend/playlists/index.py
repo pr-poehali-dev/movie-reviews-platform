@@ -55,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        (SELECT COUNT(*) FROM playlist_movies WHERE playlist_id = p.id) as movies_count
                        FROM playlists p
                        LEFT JOIN users u ON p.user_id = u.id
-                       WHERE p.id = %s AND (p.is_public = true OR p.user_id = %s)""",
+                       WHERE p.id = %s AND (p.status = 'approved' AND p.is_public = true OR p.user_id = %s)""",
                     (playlist_id, user_filter or 0)
                 )
                 playlist = cursor.fetchone()
@@ -100,7 +100,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        (SELECT COUNT(*) FROM playlist_movies WHERE playlist_id = p.id) as movies_count
                        FROM playlists p
                        LEFT JOIN users u ON p.user_id = u.id
-                       WHERE p.is_public = true
+                       WHERE p.is_public = true AND p.status = 'approved'
                        ORDER BY p.created_at DESC"""
                 )
             
@@ -159,8 +159,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute(
-                    """INSERT INTO playlists (user_id, title, description, is_public)
-                       VALUES (%s, %s, %s, %s) RETURNING *""",
+                    """INSERT INTO playlists (user_id, title, description, is_public, status)
+                       VALUES (%s, %s, %s, %s, 'pending') RETURNING *""",
                     (user_id, title, description, is_public)
                 )
                 playlist = cursor.fetchone()

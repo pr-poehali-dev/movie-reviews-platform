@@ -47,11 +47,11 @@ const CreatePlaylist = () => {
       );
       
       toast({
-        title: 'Успешно',
-        description: 'Подборка создана',
+        title: 'Подборка отправлена на модерацию',
+        description: 'После проверки администратором ваша подборка появится в общем доступе',
       });
       
-      navigate(`/playlist/${response.playlist.id}`);
+      navigate('/profile');
     } catch (error: any) {
       toast({
         title: 'Ошибка',
@@ -175,19 +175,23 @@ const CreatePlaylist = () => {
             <div className="flex gap-4">
               <Icon name="Info" size={24} className="text-primary flex-shrink-0" />
               <div>
-                <h4 className="font-bold mb-2">Как это работает?</h4>
+                <h4 className="font-bold mb-2">Модерация подборок</h4>
                 <ul className="space-y-2 text-sm text-foreground/80">
                   <li className="flex items-start gap-2">
-                    <Icon name="Check" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-                    <span>После создания подборки вы сможете добавить в неё фильмы</span>
+                    <Icon name="ShieldCheck" size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                    <span>Все подборки проходят проверку перед публикацией</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon name="Clock" size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                    <span>Модерация обычно занимает до 24 часов</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Icon name="Check" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-                    <span>Публичные подборки видны всем пользователям на сайте</span>
+                    <span>После одобрения подборка появится в общем доступе</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Icon name="Check" size={16} className="text-primary mt-0.5 flex-shrink-0" />
-                    <span>Вы можете редактировать подборку в любое время</span>
+                    <Icon name="Eye" size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                    <span>Статус модерации можно отслеживать в профиле</span>
                   </li>
                 </ul>
               </div>

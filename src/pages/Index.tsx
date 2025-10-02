@@ -103,6 +103,16 @@ const Index = () => {
                   className="pl-10 w-64 bg-card border-border"
                 />
               </div>
+              {authService.isAdmin() && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/moderation')}
+                  className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
+                >
+                  <Icon name="ShieldCheck" size={18} />
+                  <span className="hidden md:inline">Модерация</span>
+                </Button>
+              )}
               {authService.isAuthenticated() ? (
                 <Button 
                   variant="outline" 
