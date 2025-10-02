@@ -124,7 +124,7 @@ const Index = () => {
                 />
               </div>
               {authService.isAuthenticated() && <Notifications />}
-              {authService.isAuthenticated() && (
+              {authService.isAdmin() && (
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/moderation')}

@@ -18,8 +18,8 @@ const Moderation = () => {
   const [activeTab, setActiveTab] = useState('playlists');
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      navigate('/login');
+    if (!authService.isAdmin()) {
+      navigate('/');
       return;
     }
     loadContent();
@@ -82,7 +82,7 @@ const Moderation = () => {
     }
   };
 
-  if (!authService.isAuthenticated()) {
+  if (!authService.isAdmin()) {
     return null;
   }
 
