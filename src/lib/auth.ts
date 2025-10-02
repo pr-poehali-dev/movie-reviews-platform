@@ -98,23 +98,27 @@ export const authService = {
   },
 
   async getProfile(userId?: number): Promise<User> {
-    const token = this.getToken();
-    const url = userId ? `${AUTH_API_URL}?user_id=${userId}` : AUTH_API_URL;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': token || '',
-      },
-    });
+    try {
+      const token = this.getToken();
+      const url = userId ? `${AUTH_API_URL}?user_id=${userId}` : AUTH_API_URL;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || '',
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка загрузки профиля');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка загрузки профиля');
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
     }
-
-    return response.json();
   },
 
   async updateProfile(data: Partial<User>): Promise<User> {
@@ -142,23 +146,27 @@ export const authService = {
 
 export const collectionsService = {
   async getCollections(): Promise<any[]> {
-    const token = authService.getToken();
-    
-    const response = await fetch(COLLECTIONS_API_URL, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': token || '',
-      },
-    });
+    try {
+      const token = authService.getToken();
+      
+      const response = await fetch(COLLECTIONS_API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || '',
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка загрузки коллекций');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка загрузки коллекций');
+      }
+
+      const data = await response.json();
+      return data.collections || [];
+    } catch (error) {
+      return [];
     }
-
-    const data = await response.json();
-    return data.collections || [];
   },
 
   async addToCollection(movie: {
@@ -215,20 +223,24 @@ export const collectionsService = {
 
 export const playlistsService = {
   async getPublicPlaylists(): Promise<any[]> {
-    const response = await fetch(PLAYLISTS_API_URL, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    try {
+      const response = await fetch(PLAYLISTS_API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка загрузки подборок');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка загрузки подборок');
+      }
+
+      const data = await response.json();
+      return data.playlists || [];
+    } catch (error) {
+      return [];
     }
-
-    const data = await response.json();
-    return data.playlists || [];
   },
 
   async getUserPlaylists(userId: number): Promise<any[]> {
@@ -376,23 +388,27 @@ export const playlistsService = {
   },
 
   async getSavedPlaylists(): Promise<any[]> {
-    const token = authService.getToken();
-    
-    const response = await fetch(`${PLAYLISTS_API_URL}?action=saved`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': token || '',
-      },
-    });
+    try {
+      const token = authService.getToken();
+      
+      const response = await fetch(`${PLAYLISTS_API_URL}?action=saved`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || '',
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка загрузки сохранённых подборок');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка загрузки сохранённых подборок');
+      }
+
+      const data = await response.json();
+      return data.saved || [];
+    } catch (error) {
+      return [];
     }
-
-    const data = await response.json();
-    return data.saved || [];
   },
 
   async savePlaylist(playlistId: number): Promise<void> {
@@ -649,29 +665,32 @@ export interface Review {
 
 export const reviewsService = {
   async getReviews(movieId?: number, userId?: number): Promise<Review[]> {
-    const token = authService.getToken();
-    let url = `${REVIEWS_API_URL}?action=reviews`;
-    
-    if (movieId) {
-      url += `&movie_id=${movieId}`;
-    } else if (userId) {
-      url += `&user_id=${userId}`;
-    }
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': token || '',
-      },
-    });
+    try {
+      const token = authService.getToken();
+      let url = `${REVIEWS_API_URL}?action=reviews`;
+      
+      if (movieId) {
+        url += `&movie_id=${movieId}`;
+      } else if (userId) {
+        url += `&user_id=${userId}`;
+      }
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || '',
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка загрузки рецензий');
-    }
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка загрузки рецензий');
+      }
 
-    return response.json();
+      return response.json();
+    } catch (error) {
+      return [];\n    }
   },
 
   async createReview(data: {
