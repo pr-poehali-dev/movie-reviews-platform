@@ -374,6 +374,64 @@ export const playlistsService = {
       throw new Error(error.error || 'Ошибка удаления подборки');
     }
   },
+
+  async getSavedPlaylists(): Promise<any[]> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${PLAYLISTS_API_URL}?action=saved`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка загрузки сохранённых подборок');
+    }
+
+    const data = await response.json();
+    return data.saved || [];
+  },
+
+  async savePlaylist(playlistId: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(PLAYLISTS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        action: 'save',
+        playlist_id: playlistId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка сохранения подборки');
+    }
+  },
+
+  async unsavePlaylist(playlistId: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${PLAYLISTS_API_URL}?action=unsave&playlist_id=${playlistId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка удаления из сохранённых');
+    }
+  },
 };
 
 export const moderationService = {

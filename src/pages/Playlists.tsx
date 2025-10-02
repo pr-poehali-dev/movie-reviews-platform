@@ -4,15 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { authService, playlistsService } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const Playlists = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [playlists, setPlaylists] = useState<any[]>([]);
+  const [savedPlaylistIds, setSavedPlaylistIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const isAuthenticated = authService.isAuthenticated();
 
   useEffect(() => {
     loadPlaylists();
+    if (isAuthenticated) {
+      loadSavedPlaylists();
+    }
   }, []);
 
   const loadPlaylists = async () => {
@@ -23,6 +29,57 @@ const Playlists = () => {
       console.error('Error loading playlists:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSavedPlaylists = async () => {
+    try {
+      const saved = await playlistsService.getSavedPlaylists();
+      setSavedPlaylistIds(new Set(saved.map((p: any) => p.playlist_id)));
+    } catch (error) {
+      console.error('Error loading saved playlists:', error);
+    }
+  };
+
+  const handleToggleSave = async (e: React.MouseEvent, playlistId: number) => {
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите, чтобы сохранять подборки',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (savedPlaylistIds.has(playlistId)) {
+        await playlistsService.unsavePlaylist(playlistId);
+        setSavedPlaylistIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(playlistId);
+          return newSet;
+        });
+        toast({
+          title: 'Удалено',
+          description: 'Подборка удалена из сохранённых',
+        });
+      } else {
+        await playlistsService.savePlaylist(playlistId);
+        setSavedPlaylistIds(prev => new Set(prev).add(playlistId));
+        toast({
+          title: 'Сохранено',
+          description: 'Подборка добавлена в профиль',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -108,6 +165,19 @@ const Playlists = () => {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {isAuthenticated && (
+                      <button
+                        onClick={(e) => handleToggleSave(e, playlist.id)}
+                        className="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-all z-10"
+                      >
+                        <Icon 
+                          name="Heart" 
+                          size={20} 
+                          className={savedPlaylistIds.has(playlist.id) ? 'fill-red-500 text-red-500' : 'text-white'}
+                        />
+                      </button>
+                    )}
                   </div>
                   <h3 className="font-bold text-base group-hover:text-primary transition-colors line-clamp-2">
                     {playlist.title}

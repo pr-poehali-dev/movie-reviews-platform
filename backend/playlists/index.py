@@ -48,6 +48,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'GET':
             playlist_id = query_params.get('id')
             user_filter = query_params.get('user_id')
+            action = query_params.get('action')
             
             current_user_id = None
             auth_token = headers.get('x-auth-token') or headers.get('X-Auth-Token')
@@ -57,6 +58,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     current_user_id = payload['user_id']
                 except:
                     pass
+            
+            if action == 'saved':
+                if not current_user_id:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Authentication required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "SELECT playlist_id FROM saved_playlists WHERE user_id = %s",
+                    (current_user_id,)
+                )
+                saved = cursor.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'saved': [dict(s) for s in saved]}),
+                    'isBase64Encoded': False
+                }
             
             if playlist_id:
                 cursor.execute(
@@ -183,6 +206,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'save':
+                playlist_id = body_data.get('playlist_id')
+                
+                if not playlist_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'playlist_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "INSERT INTO saved_playlists (user_id, playlist_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                    (user_id, playlist_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'add_movie':
                 playlist_id = body_data.get('playlist_id')
                 movie_id = body_data.get('movie_id')
@@ -240,6 +287,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif method == 'DELETE':
             playlist_id = query_params.get('id')
             movie_id = query_params.get('movie_id')
+            action = query_params.get('action')
+            
+            if action == 'unsave':
+                unsave_playlist_id = query_params.get('playlist_id')
+                
+                if not unsave_playlist_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'playlist_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "DELETE FROM saved_playlists WHERE user_id = %s AND playlist_id = %s",
+                    (user_id, unsave_playlist_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
             
             if movie_id and playlist_id:
                 cursor.execute(
