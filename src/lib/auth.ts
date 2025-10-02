@@ -568,22 +568,26 @@ export const moderationService = {
 
 export const notificationsService = {
   async getNotifications(): Promise<any> {
-    const token = authService.getToken();
-    
-    const response = await fetch(NOTIFICATIONS_API_URL, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': token || '',
-      },
-    });
+    try {
+      const token = authService.getToken();
+      
+      const response = await fetch(NOTIFICATIONS_API_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || '',
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Ошибка загрузки уведомлений');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка загрузки уведомлений');
+      }
+
+      return response.json();
+    } catch (error) {
+      return { notifications: [], unread_count: 0 };
     }
-
-    return response.json();
   },
 
   async markAsRead(notificationId?: number): Promise<void> {
