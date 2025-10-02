@@ -15,6 +15,7 @@ const Profile = () => {
   const [user, setUser] = useState<User | null>(authService.getUser());
   const [collections, setCollections] = useState<any[]>([]);
   const [playlists, setPlaylists] = useState<any[]>([]);
+  const [savedPlaylists, setSavedPlaylists] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -29,7 +30,7 @@ const Profile = () => {
       setUser(profileData);
       setProfileLoading(false);
       
-      const [collectionsData, playlistsData] = await Promise.all([
+      const [collectionsData, playlistsData, savedPlaylistsData] = await Promise.all([
         collectionsService.getCollections().catch((e) => {
           console.error('Error loading collections:', e);
           return [];
@@ -37,11 +38,16 @@ const Profile = () => {
         playlistsService.getUserPlaylists(profileData.id).catch((e) => {
           console.error('Error loading playlists:', e);
           return [];
+        }),
+        playlistsService.getSavedPlaylists().catch((e) => {
+          console.error('Error loading saved playlists:', e);
+          return [];
         })
       ]);
       
       setCollections(collectionsData);
       setPlaylists(playlistsData);
+      setSavedPlaylists(savedPlaylistsData);
       setLoading(false);
     };
     
@@ -272,6 +278,52 @@ const Profile = () => {
                             {playlist.moderation_comment}
                           </div>
                         )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-6">Сохранённые подборки</h3>
+
+            {savedPlaylists.length === 0 ? (
+              <Card className="bg-card border-border p-8 text-center">
+                <Icon name="Heart" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-foreground/60">
+                  Вы пока не сохранили ни одной подборки
+                </p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {savedPlaylists.map((saved) => (
+                  <Card 
+                    key={saved.id}
+                    className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/playlist/${saved.playlist_id}`)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg mb-2">{saved.playlist_title}</CardTitle>
+                          <CardDescription className="line-clamp-1">
+                            {saved.playlist_description || 'Без описания'}
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-4 text-sm text-foreground/60">
+                        <div className="flex items-center gap-1">
+                          <Icon name="User" size={14} />
+                          <span>{saved.author_name || 'Аноним'}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon name="Film" size={14} />
+                          <span>{saved.movies_count || 0}</span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
