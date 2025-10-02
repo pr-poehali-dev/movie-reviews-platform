@@ -101,7 +101,9 @@ const Reviews = () => {
                         className="w-24 h-36 object-cover rounded-lg"
                       />
                       <div className="flex-1">
-                        <CardTitle className="text-2xl mb-2">{review.movie_title}</CardTitle>
+                        <CardTitle className="text-2xl mb-2">
+                          {review.review_title || review.movie_title}
+                        </CardTitle>
                         <div className="flex items-center gap-4 mb-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={review.avatar_url} alt={review.username} />
@@ -115,7 +117,7 @@ const Reviews = () => {
                           {renderRating(review.rating)}
                         </div>
                         <CardDescription className="line-clamp-3 text-base">
-                          {review.review_text}
+                          {review.seo_description || review.review_text}
                         </CardDescription>
                       </div>
                     </div>
