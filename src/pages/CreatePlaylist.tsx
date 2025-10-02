@@ -268,10 +268,27 @@ const CreatePlaylist = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
-            <h2 className="text-4xl font-bold mb-2">Создать подборку</h2>
-            <p className="text-foreground/60">
-              Составьте список любимых фильмов и поделитесь с сообществом
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-4xl font-bold mb-2">Создать подборку</h2>
+                <p className="text-foreground/60">
+                  {step === 'playlist' 
+                    ? 'Составьте список любимых фильмов и поделитесь с сообществом'
+                    : 'Добавляйте фильмы в вашу подборку'
+                  }
+                </p>
+              </div>
+              {step === 'movies' && (
+                <Button
+                  variant="outline"
+                  onClick={() => setStep('playlist')}
+                  className="gap-2"
+                >
+                  <Icon name="Edit" size={16} />
+                  Изменить подборку
+                </Button>
+              )}
+            </div>
           </div>
 
           {step === 'playlist' ? (
