@@ -364,7 +364,7 @@ export const moderationService = {
   async getPendingPlaylists(): Promise<any[]> {
     const token = authService.getToken();
     
-    const response = await fetch(`${MODERATION_API_URL}?status=pending`, {
+    const response = await fetch(`${MODERATION_API_URL}?type=playlists&status=pending`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -381,6 +381,26 @@ export const moderationService = {
     return data.playlists || [];
   },
 
+  async getPendingReviews(): Promise<any[]> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${MODERATION_API_URL}?type=reviews&status=pending`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка загрузки рецензий на модерации');
+    }
+
+    const data = await response.json();
+    return data.reviews || [];
+  },
+
   async approvePlaylist(playlistId: number): Promise<void> {
     const token = authService.getToken();
     
@@ -392,6 +412,7 @@ export const moderationService = {
       },
       body: JSON.stringify({
         action: 'approve',
+        type: 'playlist',
         playlist_id: playlistId,
       }),
     });
@@ -413,6 +434,7 @@ export const moderationService = {
       },
       body: JSON.stringify({
         action: 'reject',
+        type: 'playlist',
         playlist_id: playlistId,
         comment,
       }),
@@ -421,6 +443,51 @@ export const moderationService = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Ошибка отклонения подборки');
+    }
+  },
+
+  async approveReview(reviewId: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(MODERATION_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        action: 'approve',
+        type: 'review',
+        review_id: reviewId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка одобрения рецензии');
+    }
+  },
+
+  async rejectReview(reviewId: number, comment: string): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(MODERATION_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        action: 'reject',
+        type: 'review',
+        review_id: reviewId,
+        comment,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка отклонения рецензии');
     }
   },
 };

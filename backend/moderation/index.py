@@ -7,7 +7,7 @@ from psycopg2.extras import RealDictCursor
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Admin moderation of user playlists
+    Business: Admin moderation of user playlists and reviews
     Args: event - dict with httpMethod, body, headers, queryStringParameters
           context - object with request_id, function_name
     Returns: HTTP response with moderation data
@@ -84,102 +84,196 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if method == 'GET':
             query_params = event.get('queryStringParameters', {}) or {}
+            content_type = query_params.get('type', 'playlists')
             status_filter = query_params.get('status', 'pending')
             
-            cursor.execute(
-                """SELECT p.*, u.username as author_name,
-                   (SELECT COUNT(*) FROM playlist_movies WHERE playlist_id = p.id) as movies_count
-                   FROM playlists p
-                   LEFT JOIN users u ON p.user_id = u.id
-                   WHERE p.status = %s
-                   ORDER BY p.created_at ASC""",
-                (status_filter,)
-            )
-            playlists = cursor.fetchall()
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'playlists': [dict(p) for p in playlists]}, default=str),
-                'isBase64Encoded': False
-            }
+            if content_type == 'reviews':
+                cursor.execute(
+                    """SELECT r.*, u.username as author_name, u.avatar_url as author_avatar
+                       FROM reviews r
+                       LEFT JOIN users u ON r.user_id = u.id
+                       WHERE r.status = %s
+                       ORDER BY r.created_at ASC""",
+                    (status_filter,)
+                )
+                reviews = cursor.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'reviews': [dict(r) for r in reviews]}, default=str),
+                    'isBase64Encoded': False
+                }
+            else:
+                cursor.execute(
+                    """SELECT p.*, u.username as author_name,
+                       (SELECT COUNT(*) FROM playlist_movies WHERE playlist_id = p.id) as movies_count
+                       FROM playlists p
+                       LEFT JOIN users u ON p.user_id = u.id
+                       WHERE p.status = %s
+                       ORDER BY p.created_at ASC""",
+                    (status_filter,)
+                )
+                playlists = cursor.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'playlists': [dict(p) for p in playlists]}, default=str),
+                    'isBase64Encoded': False
+                }
         
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
             action = body_data.get('action')
-            playlist_id = body_data.get('playlist_id')
+            content_type = body_data.get('type', 'playlist')
             
-            if not playlist_id:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                    'body': json.dumps({'error': 'playlist_id обязателен'}),
-                    'isBase64Encoded': False
-                }
-            
-            if action == 'approve':
-                cursor.execute(
-                    """UPDATE playlists 
-                       SET status = 'approved', moderated_by = %s, moderated_at = NOW()
-                       WHERE id = %s RETURNING *""",
-                    (user_id, playlist_id)
-                )
-                playlist = cursor.fetchone()
+            if content_type == 'review':
+                review_id = body_data.get('review_id')
                 
-                cursor.execute(
-                    """INSERT INTO notifications (user_id, type, title, message, playlist_id)
-                       VALUES (%s, 'playlist_approved', %s, %s, %s)""",
-                    (
-                        playlist['user_id'],
-                        'Подборка одобрена',
-                        f"Ваша подборка \"{playlist['title']}\" прошла модерацию и теперь доступна всем пользователям!",
-                        playlist_id
+                if not review_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'review_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                if action == 'approve':
+                    cursor.execute(
+                        """UPDATE reviews 
+                           SET status = 'approved'
+                           WHERE id = %s RETURNING *""",
+                        (review_id,)
                     )
-                )
-                
-                conn.commit()
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                    'body': json.dumps({'message': 'Подборка одобрена', 'playlist': dict(playlist)}, default=str),
-                    'isBase64Encoded': False
-                }
-            
-            elif action == 'reject':
-                comment = body_data.get('comment', '')
-                cursor.execute(
-                    """UPDATE playlists 
-                       SET status = 'rejected', moderation_comment = %s, 
-                           moderated_by = %s, moderated_at = NOW()
-                       WHERE id = %s RETURNING *""",
-                    (comment, user_id, playlist_id)
-                )
-                playlist = cursor.fetchone()
-                
-                notification_message = f"Ваша подборка \"{playlist['title']}\" была отклонена модератором."
-                if comment:
-                    notification_message += f" Причина: {comment}"
-                
-                cursor.execute(
-                    """INSERT INTO notifications (user_id, type, title, message, playlist_id)
-                       VALUES (%s, 'playlist_rejected', %s, %s, %s)""",
-                    (
-                        playlist['user_id'],
-                        'Подборка отклонена',
-                        notification_message,
-                        playlist_id
+                    review = cursor.fetchone()
+                    
+                    cursor.execute(
+                        """INSERT INTO notifications (user_id, type, title, message)
+                           VALUES (%s, 'review_approved', %s, %s)""",
+                        (
+                            review['user_id'],
+                            'Рецензия одобрена',
+                            f"Ваша рецензия на \"{review['movie_title']}\" прошла модерацию и опубликована!"
+                        )
                     )
-                )
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'message': 'Рецензия одобрена', 'review': dict(review)}, default=str),
+                        'isBase64Encoded': False
+                    }
                 
-                conn.commit()
+                elif action == 'reject':
+                    comment = body_data.get('comment', '')
+                    cursor.execute(
+                        """UPDATE reviews 
+                           SET status = 'rejected', moderation_comment = %s
+                           WHERE id = %s RETURNING *""",
+                        (comment, review_id)
+                    )
+                    review = cursor.fetchone()
+                    
+                    notification_message = f"Ваша рецензия на \"{review['movie_title']}\" была отклонена модератором."
+                    if comment:
+                        notification_message += f" Причина: {comment}"
+                    
+                    cursor.execute(
+                        """INSERT INTO notifications (user_id, type, title, message)
+                           VALUES (%s, 'review_rejected', %s, %s)""",
+                        (
+                            review['user_id'],
+                            'Рецензия отклонена',
+                            notification_message
+                        )
+                    )
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'message': 'Рецензия отклонена', 'review': dict(review)}, default=str),
+                        'isBase64Encoded': False
+                    }
+            
+            else:
+                playlist_id = body_data.get('playlist_id')
                 
-                return {
-                    'statusCode': 200,
-                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                    'body': json.dumps({'message': 'Подборка отклонена', 'playlist': dict(playlist)}, default=str),
-                    'isBase64Encoded': False
-                }
+                if not playlist_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'playlist_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                if action == 'approve':
+                    cursor.execute(
+                        """UPDATE playlists 
+                           SET status = 'approved', moderated_by = %s, moderated_at = NOW()
+                           WHERE id = %s RETURNING *""",
+                        (user_id, playlist_id)
+                    )
+                    playlist = cursor.fetchone()
+                    
+                    cursor.execute(
+                        """INSERT INTO notifications (user_id, type, title, message, playlist_id)
+                           VALUES (%s, 'playlist_approved', %s, %s, %s)""",
+                        (
+                            playlist['user_id'],
+                            'Подборка одобрена',
+                            f"Ваша подборка \"{playlist['title']}\" прошла модерацию и теперь доступна всем пользователям!",
+                            playlist_id
+                        )
+                    )
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'message': 'Подборка одобрена', 'playlist': dict(playlist)}, default=str),
+                        'isBase64Encoded': False
+                    }
+                
+                elif action == 'reject':
+                    comment = body_data.get('comment', '')
+                    cursor.execute(
+                        """UPDATE playlists 
+                           SET status = 'rejected', moderation_comment = %s, 
+                               moderated_by = %s, moderated_at = NOW()
+                           WHERE id = %s RETURNING *""",
+                        (comment, user_id, playlist_id)
+                    )
+                    playlist = cursor.fetchone()
+                    
+                    notification_message = f"Ваша подборка \"{playlist['title']}\" была отклонена модератором."
+                    if comment:
+                        notification_message += f" Причина: {comment}"
+                    
+                    cursor.execute(
+                        """INSERT INTO notifications (user_id, type, title, message, playlist_id)
+                           VALUES (%s, 'playlist_rejected', %s, %s, %s)""",
+                        (
+                            playlist['user_id'],
+                            'Подборка отклонена',
+                            notification_message,
+                            playlist_id
+                        )
+                    )
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'message': 'Подборка отклонена', 'playlist': dict(playlist)}, default=str),
+                        'isBase64Encoded': False
+                    }
         
         return {
             'statusCode': 405,

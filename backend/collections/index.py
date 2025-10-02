@@ -83,7 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         """SELECT r.*, u.username, u.avatar_url 
                            FROM reviews r 
                            JOIN users u ON r.user_id = u.id 
-                           WHERE r.movie_id = %s 
+                           WHERE r.movie_id = %s AND r.status = 'approved'
                            ORDER BY r.created_at DESC""",
                         (movie_id,)
                     )

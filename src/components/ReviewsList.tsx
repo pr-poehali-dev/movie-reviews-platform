@@ -136,6 +136,29 @@ const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
             <p className="text-foreground/80 whitespace-pre-wrap leading-relaxed">
               {review.review_text}
             </p>
+            {review.status && review.status !== 'approved' && (
+              <div className={`mt-4 p-3 rounded-lg ${
+                review.status === 'pending' 
+                  ? 'bg-yellow-500/10 border border-yellow-500/30' 
+                  : 'bg-red-500/10 border border-red-500/30'
+              }`}>
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon 
+                    name={review.status === 'pending' ? 'Clock' : 'AlertCircle'} 
+                    size={16} 
+                    className={review.status === 'pending' ? 'text-yellow-500' : 'text-red-500'}
+                  />
+                  <span className="font-medium">
+                    {review.status === 'pending' ? 'На модерации' : 'Отклонено'}
+                  </span>
+                </div>
+                {review.moderation_comment && review.status === 'rejected' && (
+                  <p className="text-xs text-foreground/60 mt-1">
+                    Причина: {review.moderation_comment}
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}

@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { authService, collectionsService, playlistsService, User } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import EditProfile from '@/components/EditProfile';
+import ReviewsList from '@/components/ReviewsList';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -205,6 +206,13 @@ const Profile = () => {
               )}
             </CardContent>
           </Card>
+
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">Мои рецензии</h3>
+            </div>
+            <ReviewsList key={user?.id} userId={user?.id} />
+          </div>
 
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
