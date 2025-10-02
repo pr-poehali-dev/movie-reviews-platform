@@ -34,9 +34,6 @@ const Profile = () => {
       const profileData = await authService.getProfile();
       setUser(profileData);
       authService.setUser(profileData);
-      if (profileData.role === 'admin') {
-        window.location.reload();
-      }
     } catch (error: any) {
       console.error('Error loading profile:', error);
     } finally {
