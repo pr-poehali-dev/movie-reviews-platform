@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { authService } from '@/lib/auth';
 
 const Header = () => {
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-border">
@@ -90,11 +92,78 @@ const Header = () => {
                 <span className="hidden md:inline">Войти</span>
               </Button>
             )}
-            <Button size="icon" variant="ghost" className="md:hidden">
-              <Icon name="Menu" size={24} />
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Icon name={mobileMenuOpen ? "X" : "Menu"} size={24} />
             </Button>
           </div>
         </div>
+        
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border">
+            <div className="py-4 space-y-2">
+              <button
+                onClick={() => {
+                  navigate('/');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-card/50 rounded-lg"
+              >
+                Главная
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/reviews');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-card/50 rounded-lg"
+              >
+                Рецензии
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/collections');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-card/50 rounded-lg"
+              >
+                Подборки
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/new-releases');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-card/50 rounded-lg"
+              >
+                Новинки
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/blog');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-card/50 rounded-lg"
+              >
+                Блог
+              </button>
+              
+              <div className="px-4 pt-2">
+                <div className="relative">
+                  <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input 
+                    placeholder="Поиск фильмов..." 
+                    className="pl-10 w-full bg-card border-border"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
