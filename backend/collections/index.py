@@ -7,19 +7,20 @@ from psycopg2.extras import RealDictCursor
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Manage user movie collections
-    Args: event - dict with httpMethod, body, headers
+    Business: Manage user movie collections and reviews
+    Args: event - dict with httpMethod, body, headers, queryStringParameters
           context - object with request_id, function_name
-    Returns: HTTP response with collection data
+    Returns: HTTP response with collection or review data
     '''
     method: str = event.get('httpMethod', 'GET')
+    path = event.get('queryStringParameters', {}).get('action', 'collections')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token',
                 'Access-Control-Max-Age': '86400'
             },
@@ -71,6 +72,183 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
+        if path == 'reviews':
+            if method == 'GET':
+                query_params = event.get('queryStringParameters', {}) or {}
+                movie_id = query_params.get('movie_id')
+                review_user_id = query_params.get('user_id')
+                
+                if movie_id:
+                    cursor.execute(
+                        """SELECT r.*, u.username, u.avatar_url 
+                           FROM reviews r 
+                           JOIN users u ON r.user_id = u.id 
+                           WHERE r.movie_id = %s 
+                           ORDER BY r.created_at DESC""",
+                        (movie_id,)
+                    )
+                elif review_user_id:
+                    cursor.execute(
+                        """SELECT r.*, u.username, u.avatar_url 
+                           FROM reviews r 
+                           JOIN users u ON r.user_id = u.id 
+                           WHERE r.user_id = %s 
+                           ORDER BY r.created_at DESC""",
+                        (review_user_id,)
+                    )
+                else:
+                    cursor.execute(
+                        """SELECT r.*, u.username, u.avatar_url 
+                           FROM reviews r 
+                           JOIN users u ON r.user_id = u.id 
+                           WHERE r.user_id = %s 
+                           ORDER BY r.created_at DESC""",
+                        (user_id,)
+                    )
+                
+                reviews = cursor.fetchall()
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps([dict(r) for r in reviews], default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif method == 'POST':
+                body_data = json.loads(event.get('body', '{}'))
+                movie_id = body_data.get('movie_id')
+                movie_title = body_data.get('movie_title')
+                movie_image = body_data.get('movie_image')
+                rating = body_data.get('rating')
+                review_text = body_data.get('review_text', '').strip()
+                
+                if not movie_id or not movie_title or not rating or not review_text:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Все поля обязательны'}),
+                        'isBase64Encoded': False
+                    }
+                
+                if not isinstance(rating, int) or rating < 1 or rating > 10:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Рейтинг должен быть от 1 до 10'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "SELECT id FROM reviews WHERE user_id = %s AND movie_id = %s",
+                    (user_id, movie_id)
+                )
+                existing = cursor.fetchone()
+                
+                if existing:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Вы уже написали рецензию на этот фильм'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    """INSERT INTO reviews 
+                       (user_id, movie_id, movie_title, movie_image, rating, review_text) 
+                       VALUES (%s, %s, %s, %s, %s, %s) 
+                       RETURNING *""",
+                    (user_id, movie_id, movie_title, movie_image, rating, review_text)
+                )
+                new_review = cursor.fetchone()
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps(dict(new_review), default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif method == 'PUT':
+                body_data = json.loads(event.get('body', '{}'))
+                review_id = body_data.get('review_id')
+                rating = body_data.get('rating')
+                review_text = body_data.get('review_text', '').strip()
+                
+                if not review_id or not rating or not review_text:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Все поля обязательны'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "SELECT id FROM reviews WHERE id = %s AND user_id = %s",
+                    (review_id, user_id)
+                )
+                if not cursor.fetchone():
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Рецензия не найдена'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    """UPDATE reviews 
+                       SET rating = %s, review_text = %s, updated_at = CURRENT_TIMESTAMP 
+                       WHERE id = %s AND user_id = %s 
+                       RETURNING *""",
+                    (rating, review_text, review_id, user_id)
+                )
+                updated_review = cursor.fetchone()
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps(dict(updated_review), default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif method == 'DELETE':
+                query_params = event.get('queryStringParameters', {}) or {}
+                review_id = query_params.get('review_id')
+                
+                if not review_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'review_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "SELECT id FROM reviews WHERE id = %s AND user_id = %s",
+                    (review_id, user_id)
+                )
+                if not cursor.fetchone():
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Рецензия не найдена'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "UPDATE reviews SET movie_id = NULL WHERE id = %s AND user_id = %s",
+                    (review_id, user_id)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'message': 'Рецензия удалена'}),
+                    'isBase64Encoded': False
+                }
+        
         if method == 'GET':
             cursor.execute(
                 "SELECT * FROM user_collections WHERE user_id = %s ORDER BY added_at DESC",

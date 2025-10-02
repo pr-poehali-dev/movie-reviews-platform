@@ -1,5 +1,6 @@
 const AUTH_API_URL = 'https://functions.poehali.dev/c11d4d5e-526c-44e6-be66-fc489d9735fa';
 const COLLECTIONS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
+const REVIEWS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
 const PLAYLISTS_API_URL = 'https://functions.poehali.dev/d1c32b2a-126c-4ae1-a4b3-bbc8d7ddede1';
 const MODERATION_API_URL = 'https://functions.poehali.dev/5e9858b0-439e-4bbf-bcbd-e1bc42cc796b';
 const NOTIFICATIONS_API_URL = 'https://functions.poehali.dev/a5fa6d9e-26b8-4f93-b64c-162092c3ce0e';
@@ -483,6 +484,117 @@ export const notificationsService = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Ошибка удаления уведомлений');
+    }
+  },
+};
+
+export interface Review {
+  id: number;
+  user_id: number;
+  username?: string;
+  avatar_url?: string;
+  movie_id: number;
+  movie_title: string;
+  movie_image?: string;
+  rating: number;
+  review_text: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const reviewsService = {
+  async getReviews(movieId?: number, userId?: number): Promise<Review[]> {
+    const token = authService.getToken();
+    let url = `${REVIEWS_API_URL}?action=reviews`;
+    
+    if (movieId) {
+      url += `&movie_id=${movieId}`;
+    } else if (userId) {
+      url += `&user_id=${userId}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка загрузки рецензий');
+    }
+
+    return response.json();
+  },
+
+  async createReview(data: {
+    movie_id: number;
+    movie_title: string;
+    movie_image?: string;
+    rating: number;
+    review_text: string;
+  }): Promise<Review> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${REVIEWS_API_URL}?action=reviews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка создания рецензии');
+    }
+
+    return response.json();
+  },
+
+  async updateReview(reviewId: number, data: {
+    rating: number;
+    review_text: string;
+  }): Promise<Review> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${REVIEWS_API_URL}?action=reviews`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+      body: JSON.stringify({
+        review_id: reviewId,
+        ...data,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка обновления рецензии');
+    }
+
+    return response.json();
+  },
+
+  async deleteReview(reviewId: number): Promise<void> {
+    const token = authService.getToken();
+    
+    const response = await fetch(`${REVIEWS_API_URL}?action=reviews&review_id=${reviewId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token || '',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Ошибка удаления рецензии');
     }
   },
 };

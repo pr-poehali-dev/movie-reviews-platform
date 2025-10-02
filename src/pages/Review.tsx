@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,12 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { authService, collectionsService } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import WriteReview from '@/components/WriteReview';
+import ReviewsList from '@/components/ReviewsList';
 
 const Review = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [reviewsKey, setReviewsKey] = useState(0);
 
   const movieData: Record<string, any> = {
     '1': {
@@ -247,25 +250,18 @@ const Review = () => {
           </Card>
 
           <div className="mt-12 pt-8 border-t border-border">
-            <h3 className="text-2xl font-bold mb-6">Поделиться рецензией</h3>
-            <div className="flex flex-wrap gap-4">
-              <Button className="gap-2 bg-primary hover:bg-primary/90">
-                <Icon name="Twitter" size={18} />
-                Twitter
-              </Button>
-              <Button className="gap-2 bg-primary hover:bg-primary/90">
-                <Icon name="Facebook" size={18} />
-                Facebook
-              </Button>
-              <Button className="gap-2 bg-primary hover:bg-primary/90">
-                <Icon name="Send" size={18} />
-                Telegram
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Icon name="Link" size={18} />
-                Копировать ссылку
-              </Button>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">Рецензии пользователей</h3>
+              {authService.isAuthenticated() && (
+                <WriteReview
+                  movieId={parseInt(id || '1')}
+                  movieTitle={movie.title}
+                  movieImage={movie.image}
+                  onReviewAdded={() => setReviewsKey(prev => prev + 1)}
+                />
+              )}
             </div>
+            <ReviewsList key={reviewsKey} movieId={parseInt(id || '1')} />
           </div>
         </div>
       </div>
