@@ -13,14 +13,28 @@ import { useToast } from '@/hooks/use-toast';
 const CreatePlaylist = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [step, setStep] = useState<'playlist' | 'movies'>('playlist');
+  const [playlistId, setPlaylistId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingMovieCover, setUploadingMovieCover] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState<string>('');
+  const [movieCoverUrl, setMovieCoverUrl] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const movieCoverInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     isPublic: true,
+  });
+  const [movieData, setMovieData] = useState({
+    title: '',
+    titleEn: '',
+    year: '',
+    genre: '',
+    director: '',
+    rating: '',
+    description: '',
   });
 
   if (!authService.isAuthenticated()) {
@@ -79,7 +93,58 @@ const CreatePlaylist = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleMovieCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите изображение',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingMovieCover(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'kinovkus_covers');
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dsk1jxlgd/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
+      
+      setMovieCoverUrl(data.secure_url);
+      
+      toast({
+        title: 'Успешно',
+        description: 'Обложка фильма загружена',
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить изображение',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingMovieCover(false);
+    }
+  };
+
+  const handlePlaylistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.title.trim()) {
@@ -101,12 +166,13 @@ const CreatePlaylist = () => {
         coverImageUrl
       );
       
-      toast({
-        title: 'Подборка отправлена на модерацию',
-        description: 'После проверки администратором ваша подборка появится в общем доступе',
-      });
+      setPlaylistId(response.playlist.id);
+      setStep('movies');
       
-      navigate('/profile');
+      toast({
+        title: 'Отлично!',
+        description: 'Теперь добавьте фильмы в подборку',
+      });
     } catch (error: any) {
       toast({
         title: 'Ошибка',
@@ -116,6 +182,64 @@ const CreatePlaylist = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddMovie = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!movieData.title.trim()) {
+      toast({
+        title: 'Ошибка',
+        description: 'Введите название фильма',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await playlistsService.addMovieToPlaylist(playlistId!, {
+        id: 0,
+        title: movieData.title,
+        title_en: movieData.titleEn,
+        year: movieData.year ? parseInt(movieData.year) : undefined,
+        genre: movieData.genre,
+        director: movieData.director,
+        rating: movieData.rating ? parseFloat(movieData.rating) : 0,
+        image: '',
+        cover_url: movieCoverUrl,
+        description: movieData.description,
+      });
+      
+      setMovieData({
+        title: '',
+        titleEn: '',
+        year: '',
+        genre: '',
+        director: '',
+        rating: '',
+        description: '',
+      });
+      setMovieCoverUrl('');
+      
+      toast({
+        title: 'Успешно',
+        description: 'Фильм добавлен! Можете добавить ещё',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinish = () => {
+    navigate(`/playlist/${playlistId}`);
   };
 
   return (
@@ -148,15 +272,16 @@ const CreatePlaylist = () => {
             </p>
           </div>
 
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle>Информация о подборке</CardTitle>
-              <CardDescription>
-                Заполните основные данные для вашей подборки
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+          {step === 'playlist' ? (
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle>Информация о подборке</CardTitle>
+                <CardDescription>
+                  Заполните основные данные для вашей подборки
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePlaylistSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="title">Название подборки *</Label>
                   <Input
@@ -278,8 +403,181 @@ const CreatePlaylist = () => {
               </form>
             </CardContent>
           </Card>
+          ) : (
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle>Добавление фильмов</CardTitle>
+                <CardDescription>
+                  Добавьте фильмы в вашу подборку. После добавления каждого фильма форма очистится для следующего
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleAddMovie} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label>Обложка фильма</Label>
+                    <div className="flex gap-4 items-start">
+                      <div className="flex-1">
+                        <input
+                          ref={movieCoverInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleMovieCoverUpload}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => movieCoverInputRef.current?.click()}
+                          disabled={uploadingMovieCover}
+                          className="w-full gap-2"
+                        >
+                          {uploadingMovieCover ? (
+                            <>
+                              <Icon name="Loader2" size={16} className="animate-spin" />
+                              Загрузка...
+                            </>
+                          ) : (
+                            <>
+                              <Icon name="Upload" size={16} />
+                              Выбрать обложку
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      {movieCoverUrl && (
+                        <div className="relative w-32 h-48 rounded-lg overflow-hidden border border-border">
+                          <img
+                            src={movieCoverUrl}
+                            alt="Обложка"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setMovieCoverUrl('')}
+                            className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-black rounded-full"
+                          >
+                            <Icon name="X" size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-          <div className="mt-8 p-6 bg-card border border-border rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="movieTitle">Название на русском *</Label>
+                      <Input
+                        id="movieTitle"
+                        placeholder="Интерстеллар"
+                        value={movieData.title}
+                        onChange={(e) => setMovieData({ ...movieData, title: e.target.value })}
+                        required
+                        className="bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="movieTitleEn">Название на английском</Label>
+                      <Input
+                        id="movieTitleEn"
+                        placeholder="Interstellar"
+                        value={movieData.titleEn}
+                        onChange={(e) => setMovieData({ ...movieData, titleEn: e.target.value })}
+                        className="bg-background border-border"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="movieYear">Год</Label>
+                      <Input
+                        id="movieYear"
+                        type="number"
+                        placeholder="2014"
+                        value={movieData.year}
+                        onChange={(e) => setMovieData({ ...movieData, year: e.target.value })}
+                        className="bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="movieGenre">Жанр</Label>
+                      <Input
+                        id="movieGenre"
+                        placeholder="Научная фантастика"
+                        value={movieData.genre}
+                        onChange={(e) => setMovieData({ ...movieData, genre: e.target.value })}
+                        className="bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="movieRating">Рейтинг (0-10)</Label>
+                      <Input
+                        id="movieRating"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        placeholder="8.5"
+                        value={movieData.rating}
+                        onChange={(e) => setMovieData({ ...movieData, rating: e.target.value })}
+                        className="bg-background border-border"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="movieDirector">Режиссёр</Label>
+                    <Input
+                      id="movieDirector"
+                      placeholder="Кристофер Нолан"
+                      value={movieData.director}
+                      onChange={(e) => setMovieData({ ...movieData, director: e.target.value })}
+                      className="bg-background border-border"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="movieDescription">Описание</Label>
+                    <Textarea
+                      id="movieDescription"
+                      placeholder="Краткое описание сюжета..."
+                      value={movieData.description}
+                      onChange={(e) => setMovieData({ ...movieData, description: e.target.value })}
+                      rows={3}
+                      className="bg-background border-border resize-none"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <Button
+                      type="submit"
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <Icon name="Loader2" size={20} className="animate-spin" />
+                      ) : (
+                        'Добавить фильм'
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFinish}
+                    >
+                      Завершить
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 'playlist' && (
+            <div className="mt-8 p-6 bg-card border border-border rounded-lg">
             <div className="flex gap-4">
               <Icon name="Info" size={24} className="text-primary flex-shrink-0" />
               <div>
@@ -305,6 +603,7 @@ const CreatePlaylist = () => {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>
