@@ -201,73 +201,38 @@ const PlaylistDetail = () => {
                 )}
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {movies.map((movie) => (
-                  <Card
-                    key={movie.id}
-                    className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all"
-                  >
-                    <div className="relative h-64 overflow-hidden">
-                      <img
-                        src={movie.movie_cover_url || movie.movie_image || '/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg'}
-                        alt={movie.movie_title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                      {movie.movie_rating > 0 && (
-                        <div className="absolute top-3 right-3">
-                          <div className="bg-black/80 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-                            {renderStars(movie.movie_rating)}
-                          </div>
+                  <div key={movie.id} className="group">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2">
+                      {movie.movie_cover_url ? (
+                        <img
+                          src={movie.movie_cover_url}
+                          alt={movie.movie_title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                          <Icon name="Film" size={48} className="text-primary/40" />
                         </div>
                       )}
-                      {movie.movie_year && (
-                        <div className="absolute top-3 left-3">
-                          <div className="bg-primary/90 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold">
-                            {movie.movie_year}
-                          </div>
-                        </div>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-lg font-bold mb-1 text-white">{movie.movie_title}</h3>
-                        {movie.movie_title_en && (
-                          <p className="text-xs text-white/70 mb-2">{movie.movie_title_en}</p>
-                        )}
-                        <div className="flex flex-wrap gap-2 text-xs">
-                          {movie.movie_genre && (
-                            <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-white">
-                              {movie.movie_genre}
-                            </span>
-                          )}
-                          {movie.movie_director && (
-                            <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-white">
-                              {movie.movie_director}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {movie.movie_description && (
-                      <CardHeader>
-                        <CardDescription className="line-clamp-3 text-sm">
-                          {movie.movie_description}
-                        </CardDescription>
-                      </CardHeader>
-                    )}
-                    <CardContent className="flex gap-2 pt-4">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       {isOwner && !playlist.is_approved && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 gap-2 text-destructive border-destructive hover:bg-destructive hover:text-white"
+                        <button
                           onClick={() => handleRemoveMovie(movie.movie_id)}
+                          className="absolute top-2 right-2 p-1.5 bg-destructive/90 hover:bg-destructive rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <Icon name="Trash2" size={16} />
-                          Удалить
-                        </Button>
+                          <Icon name="Trash2" size={14} />
+                        </button>
                       )}
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <h3 className="font-bold text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                      {movie.movie_title}
+                    </h3>
+                    {movie.movie_year && (
+                      <p className="text-xs text-foreground/60 mt-1">{movie.movie_year}</p>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
