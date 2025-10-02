@@ -264,19 +264,9 @@ const Index = () => {
 
       <div className="bg-gradient-to-b from-background to-black/50 py-16">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-3xl font-bold mb-2">Тематические подборки</h3>
-              <p className="text-foreground/60">Кураторские списки для любого настроения</p>
-            </div>
-            <Button 
-              variant="ghost" 
-              className="gap-2 text-primary hover:text-primary/80"
-              onClick={() => navigate('/playlists')}
-            >
-              Все подборки
-              <Icon name="ArrowRight" size={18} />
-            </Button>
+          <div className="mb-8">
+            <h3 className="text-3xl font-bold mb-2">Тематические подборки</h3>
+            <p className="text-foreground/60">Кураторские списки для любого настроения</p>
           </div>
 
           {playlists.length === 0 ? (
