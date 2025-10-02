@@ -225,14 +225,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute(
-                    "SELECT id FROM reviews WHERE id = %s AND user_id = %s",
+                    "SELECT id, is_approved FROM reviews WHERE id = %s AND user_id = %s",
                     (review_id, user_id)
                 )
-                if not cursor.fetchone():
+                review = cursor.fetchone()
+                if not review:
                     return {
                         'statusCode': 404,
                         'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
                         'body': json.dumps({'error': 'Рецензия не найдена'}),
+                        'isBase64Encoded': False
+                    }
+                
+                if review['is_approved']:
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Нельзя удалить одобренную рецензию'}),
                         'isBase64Encoded': False
                     }
                 

@@ -120,7 +120,7 @@ const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
                   </p>
                 </div>
               </div>
-              {currentUser?.id === review.user_id && (
+              {currentUser?.id === review.user_id && !review.is_approved && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -129,6 +129,12 @@ const ReviewsList = ({ movieId, userId }: ReviewsListProps) => {
                 >
                   <Icon name="Trash2" size={16} />
                 </Button>
+              )}
+              {review.is_approved && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/50 rounded-md text-xs text-green-500">
+                  <Icon name="Check" size={12} />
+                  Одобрено
+                </div>
               )}
             </div>
           </CardHeader>

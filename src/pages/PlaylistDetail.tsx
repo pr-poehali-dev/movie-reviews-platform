@@ -191,7 +191,7 @@ const PlaylistDetail = () => {
                         <Icon name="Eye" size={16} />
                         Смотреть
                       </Button>
-                      {isOwner && (
+                      {isOwner && !playlist.is_approved && (
                         <Button
                           variant="outline"
                           size="sm"

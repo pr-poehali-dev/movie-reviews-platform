@@ -242,7 +242,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute(
-                    "UPDATE playlist_movies SET movie_id = NULL WHERE playlist_id = %s AND movie_id = %s",
+                    "DELETE FROM playlist_movies WHERE playlist_id = %s AND movie_id = %s",
                     (playlist_id, movie_id)
                 )
                 conn.commit()
@@ -256,7 +256,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif playlist_id:
                 cursor.execute(
-                    "SELECT user_id FROM playlists WHERE id = %s",
+                    "SELECT user_id, is_approved FROM playlists WHERE id = %s",
                     (playlist_id,)
                 )
                 playlist = cursor.fetchone()
@@ -269,7 +269,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                cursor.execute("UPDATE playlists SET title = NULL WHERE id = %s", (playlist_id,))
+                if playlist['is_approved']:
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Нельзя удалить одобренную подборку'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute("DELETE FROM playlists WHERE id = %s", (playlist_id,))
                 conn.commit()
                 
                 return {
