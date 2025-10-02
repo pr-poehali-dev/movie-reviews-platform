@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { authService, collectionsService } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +16,7 @@ const Movie = () => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [reviewsKey, setReviewsKey] = useState(0);
+  const [trailerOpen, setTrailerOpen] = useState(false);
 
   const movieData: Record<string, any> = {
     '1': {
@@ -154,9 +156,7 @@ const Movie = () => {
               <div className="flex flex-wrap gap-3">
                 <Button 
                   className="gap-2 bg-primary hover:bg-primary/90"
-                  onClick={() => {
-                    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
-                  }}
+                  onClick={() => setTrailerOpen(true)}
                 >
                   <Icon name="Play" size={18} />
                   Смотреть трейлер
@@ -284,6 +284,29 @@ const Movie = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={trailerOpen} onOpenChange={setTrailerOpen}>
+        <DialogContent className="max-w-4xl p-0 bg-black border-0">
+          <div className="relative aspect-video">
+            <button
+              onClick={() => setTrailerOpen(false)}
+              className="absolute -top-12 right-0 z-50 text-white hover:text-primary transition-colors"
+            >
+              <Icon name="X" size={32} />
+            </button>
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+              title="Трейлер фильма"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="rounded-lg"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
