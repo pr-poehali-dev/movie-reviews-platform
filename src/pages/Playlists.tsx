@@ -88,44 +88,31 @@ const Playlists = () => {
               )}
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {playlists.map((playlist) => (
-                <Card
+                <div
                   key={playlist.id}
-                  className="group bg-card border-border hover:border-primary/50 transition-all cursor-pointer overflow-hidden"
+                  className="group cursor-pointer"
                   onClick={() => navigate(`/playlist/${playlist.id}`)}
                 >
-                  {playlist.cover_image_url && (
-                    <div className="w-full h-48 overflow-hidden bg-muted">
+                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-3">
+                    {playlist.cover_image_url ? (
                       <img
                         src={playlist.cover_image_url}
                         alt={playlist.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
-                      <Icon name="List" size={24} className="text-primary" />
-                      <div className="flex items-center gap-1 text-sm text-foreground/60">
-                        <Icon name="Film" size={14} />
-                        <span>{playlist.movies_count || 0}</span>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <Icon name="Film" size={48} className="text-primary/40" />
                       </div>
-                    </div>
-                    <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                      {playlist.title}
-                    </CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {playlist.description || 'Без описания'}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2 text-sm text-foreground/60">
-                      <Icon name="User" size={14} />
-                      <span>{playlist.author_name || 'Аноним'}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                  <h3 className="font-bold text-base group-hover:text-primary transition-colors line-clamp-2">
+                    {playlist.title}
+                  </h3>
+                </div>
               ))}
             </div>
           )}

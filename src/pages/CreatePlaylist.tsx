@@ -165,6 +165,15 @@ const CreatePlaylist = () => {
       return;
     }
 
+    if (!coverImageUrl) {
+      toast({
+        title: 'Ошибка',
+        description: 'Загрузите обложку подборки',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -348,7 +357,7 @@ const CreatePlaylist = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Обложка подборки</Label>
+                  <Label>Обложка подборки *</Label>
                   <div className="flex gap-4 items-start">
                     <div className="flex-1">
                       <input
@@ -396,7 +405,7 @@ const CreatePlaylist = () => {
                     )}
                   </div>
                   <p className="text-xs text-foreground/60">
-                    Рекомендуемый размер: 1200×630 пикселей
+                    Обязательное поле. Рекомендуемый размер: 1200×630 пикселей
                   </p>
                 </div>
 
