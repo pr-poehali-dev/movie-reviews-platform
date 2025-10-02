@@ -128,7 +128,6 @@ const Login = () => {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   required
-                  autoComplete="off"
                   className="bg-background border-border"
                 />
               </div>
