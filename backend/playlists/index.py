@@ -116,6 +116,49 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'saved':
+                auth_token = headers.get('x-auth-token') or headers.get('X-Auth-Token')
+                
+                if not auth_token:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Требуется авторизация'}),
+                        'isBase64Encoded': False
+                    }
+                
+                try:
+                    payload = jwt.decode(auth_token, jwt_secret, algorithms=['HS256'])
+                    user_id = payload['user_id']
+                except:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                        'body': json.dumps({'error': 'Неверный токен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    """SELECT sp.id, sp.playlist_id, sp.saved_at,
+                       p.title as playlist_title, p.description as playlist_description,
+                       u.username as author_name,
+                       (SELECT COUNT(*) FROM playlist_movies WHERE playlist_id = p.id) as movies_count
+                       FROM saved_playlists sp
+                       JOIN playlists p ON sp.playlist_id = p.id
+                       LEFT JOIN users u ON p.user_id = u.id
+                       WHERE sp.user_id = %s
+                       ORDER BY sp.saved_at DESC""",
+                    (user_id,)
+                )
+                saved = cursor.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                    'body': json.dumps({'saved': [dict(s) for s in saved]}, default=str),
+                    'isBase64Encoded': False
+                }
+            
             elif user_filter:
                 cursor.execute(
                     """SELECT p.*, u.username as author_name,
