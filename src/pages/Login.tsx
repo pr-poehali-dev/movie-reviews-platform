@@ -19,6 +19,19 @@ const Login = () => {
     username: '',
   });
 
+  const testConnection = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/c11d4d5e-526c-44e6-be66-fc489d9735fa', {
+        method: 'OPTIONS'
+      });
+      console.log('Connection test:', response.status);
+      alert(`Тест подключения: ${response.status === 200 ? 'Успешно' : 'Ошибка ' + response.status}`);
+    } catch (err: any) {
+      console.error('Connection test failed:', err);
+      alert('Тест подключения: Ошибка - ' + err.message);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -166,10 +179,13 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 space-y-2">
           <Button variant="ghost" onClick={() => navigate('/')} className="gap-2">
             <Icon name="ArrowLeft" size={16} />
             Вернуться на главную
+          </Button>
+          <Button variant="outline" size="sm" onClick={testConnection} className="text-xs">
+            Тест подключения
           </Button>
         </div>
       </div>
