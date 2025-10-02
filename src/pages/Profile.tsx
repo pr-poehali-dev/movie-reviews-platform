@@ -26,29 +26,40 @@ const Profile = () => {
     }
 
     const initProfile = async () => {
-      const profileData = await authService.getProfile();
-      setUser(profileData);
-      setProfileLoading(false);
-      
-      const [collectionsData, playlistsData, savedPlaylistsData] = await Promise.all([
-        collectionsService.getCollections().catch((e) => {
-          console.error('Error loading collections:', e);
-          return [];
-        }),
-        playlistsService.getUserPlaylists(profileData.id).catch((e) => {
-          console.error('Error loading playlists:', e);
-          return [];
-        }),
-        playlistsService.getSavedPlaylists().catch((e) => {
-          console.error('Error loading saved playlists:', e);
-          return [];
-        })
-      ]);
-      
-      setCollections(collectionsData);
-      setPlaylists(playlistsData);
-      setSavedPlaylists(savedPlaylistsData);
-      setLoading(false);
+      try {
+        const profileData = await authService.getProfile();
+        setUser(profileData);
+        setProfileLoading(false);
+        
+        const [collectionsData, playlistsData, savedPlaylistsData] = await Promise.all([
+          collectionsService.getCollections().catch((e) => {
+            console.error('Error loading collections:', e);
+            return [];
+          }),
+          playlistsService.getUserPlaylists(profileData.id).catch((e) => {
+            console.error('Error loading playlists:', e);
+            return [];
+          }),
+          playlistsService.getSavedPlaylists().catch((e) => {
+            console.error('Error loading saved playlists:', e);
+            return [];
+          })
+        ]);
+        
+        setCollections(collectionsData);
+        setPlaylists(playlistsData);
+        setSavedPlaylists(savedPlaylistsData);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось загрузить профиль',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+        setProfileLoading(false);
+      }
     };
     
     initProfile();
