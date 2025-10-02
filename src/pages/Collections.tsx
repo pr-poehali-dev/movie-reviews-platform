@@ -109,12 +109,7 @@ const Collections = () => {
             <Card className="bg-card border-border p-12 text-center">
               <Icon name="List" size={64} className="mx-auto mb-4 text-muted-foreground" />
               <h4 className="text-xl font-bold mb-2">Пока нет подборок</h4>
-              <p className="text-foreground/60 mb-6">Создайте первую подборку!</p>
-              {user && (
-                <Button onClick={() => navigate('/create-playlist')}>
-                  Создать подборку
-                </Button>
-              )}
+              <p className="text-foreground/60">Скоро здесь появятся интересные подборки фильмов!</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

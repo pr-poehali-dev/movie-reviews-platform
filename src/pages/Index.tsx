@@ -331,17 +331,9 @@ const Index = () => {
             <Card className="bg-card border-border p-12 text-center">
               <Icon name="List" size={64} className="mx-auto mb-4 text-muted-foreground" />
               <h4 className="text-xl font-bold mb-2">Подборок пока нет</h4>
-              <p className="text-foreground/60 mb-6">
-                Создайте первую подборку и поделитесь своими любимыми фильмами
+              <p className="text-foreground/60">
+                Скоро здесь появятся интересные тематические подборки фильмов!
               </p>
-              {authService.isAuthenticated() && (
-                <Button
-                  onClick={() => navigate('/create-playlist')}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  Создать подборку
-                </Button>
-              )}
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

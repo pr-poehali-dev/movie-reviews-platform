@@ -9,9 +9,7 @@ import Review from "./pages/Review";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Playlists from "./pages/Playlists";
-import CreatePlaylist from "./pages/CreatePlaylist";
 import PlaylistDetail from "./pages/PlaylistDetail";
-import AddMovieToPlaylist from "./pages/AddMovieToPlaylist";
 import Moderation from "./pages/Moderation";
 import Reviews from "./pages/Reviews";
 import Collections from "./pages/Collections";
@@ -33,9 +31,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/playlists" element={<Playlists />} />
-          <Route path="/create-playlist" element={<CreatePlaylist />} />
           <Route path="/playlist/:id" element={<PlaylistDetail />} />
-          <Route path="/playlist/:id/add-movie" element={<AddMovieToPlaylist />} />
           <Route path="/moderation" element={<Moderation />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/collections" element={<Collections />} />

@@ -97,15 +97,6 @@ const Playlists = () => {
             </button>
 
             <div className="flex items-center gap-4">
-              {isAuthenticated && (
-                <Button
-                  onClick={() => navigate('/create-playlist')}
-                  className="gap-2 bg-primary hover:bg-primary/90"
-                >
-                  <Icon name="Plus" size={18} />
-                  Создать подборку
-                </Button>
-              )}
               <Button variant="ghost" onClick={() => navigate('/')} className="gap-2">
                 <Icon name="ArrowLeft" size={16} />
                 Назад
@@ -132,17 +123,9 @@ const Playlists = () => {
             <Card className="bg-card border-border p-12 text-center">
               <Icon name="List" size={64} className="mx-auto mb-4 text-muted-foreground" />
               <h4 className="text-xl font-bold mb-2">Подборок пока нет</h4>
-              <p className="text-foreground/60 mb-6">
-                Станьте первым, кто создаст интересную подборку
+              <p className="text-foreground/60">
+                Скоро здесь появятся интересные тематические подборки!
               </p>
-              {isAuthenticated && (
-                <Button
-                  onClick={() => navigate('/create-playlist')}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  Создать подборку
-                </Button>
-              )}
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
