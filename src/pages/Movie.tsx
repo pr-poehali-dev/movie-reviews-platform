@@ -317,6 +317,20 @@ const Movie = () => {
         <DialogContent className="max-w-md">
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Поделиться фильмом</h2>
+            <Button
+              variant="outline"
+              className="w-full gap-2 justify-center"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                toast({
+                  title: 'Ссылка скопирована',
+                  description: 'Ссылка на фильм скопирована в буфер обмена',
+                });
+              }}
+            >
+              <Icon name="Copy" size={20} />
+              Скопировать ссылку
+            </Button>
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
