@@ -1,3 +1,6 @@
+const IS_PREVIEW = window.location.hostname.includes('preview--');
+const USE_MOCK = IS_PREVIEW;
+
 const AUTH_API_URL = 'https://functions.poehali.dev/c11d4d5e-526c-44e6-be66-fc489d9735fa';
 const COLLECTIONS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
 const REVIEWS_API_URL = 'https://functions.poehali.dev/fe6d9067-b1a6-4375-974e-95c9fcd84489';
@@ -24,6 +27,21 @@ export interface AuthResponse {
 
 export const authService = {
   async register(email: string, password: string, username: string): Promise<AuthResponse> {
+    if (USE_MOCK) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const mockUser = {
+        id: Math.floor(Math.random() * 1000),
+        email,
+        username,
+        role: 'user',
+        avatar_url: '/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg'
+      };
+      return {
+        token: 'mock-token-' + Date.now(),
+        user: mockUser
+      };
+    }
+    
     try {
       const response = await fetch(AUTH_API_URL, {
         method: 'POST',
@@ -53,6 +71,21 @@ export const authService = {
   },
 
   async login(email: string, password: string): Promise<AuthResponse> {
+    if (USE_MOCK) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const mockUser = {
+        id: 1,
+        email,
+        username: 'Тестовый пользователь',
+        role: 'admin',
+        avatar_url: '/img/ea64283c-a994-41e0-a44f-e4de01bdb91b.jpg'
+      };
+      return {
+        token: 'mock-token-' + Date.now(),
+        user: mockUser
+      };
+    }
+    
     try {
       const response = await fetch(AUTH_API_URL, {
         method: 'POST',
