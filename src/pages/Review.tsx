@@ -252,21 +252,6 @@ const Review = () => {
             <h3 className="text-2xl font-bold mb-2">Вердикт</h3>
             <p className="text-lg text-foreground/80">{movie.verdict}</p>
           </Card>
-
-          <div className="mt-12 pt-8 border-t border-border">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold">Рецензии пользователей</h3>
-              {authService.isAuthenticated() && (
-                <WriteReview
-                  movieId={parseInt(id || '1')}
-                  movieTitle={movie.title}
-                  movieImage={movie.image}
-                  onReviewAdded={() => setReviewsKey(prev => prev + 1)}
-                />
-              )}
-            </div>
-            <ReviewsList key={reviewsKey} movieId={parseInt(id || '1')} />
-          </div>
         </div>
       </div>
     </div>
