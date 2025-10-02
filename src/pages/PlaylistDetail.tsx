@@ -113,12 +113,28 @@ const PlaylistDetail = () => {
           <Card className="bg-card border-border mb-8 p-8">
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
-                <Badge className="mb-4 bg-primary/20 border-primary text-primary hover:bg-primary/30">
-                  Подборка
-                </Badge>
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className="bg-primary/20 border-primary text-primary hover:bg-primary/30">
+                    Подборка
+                  </Badge>
+                  {playlist.is_approved && (
+                    <Badge className="bg-green-500/20 border-green-500 text-green-500 hover:bg-green-500/30 gap-1">
+                      <Icon name="Check" size={12} />
+                      Одобрено редакцией
+                    </Badge>
+                  )}
+                </div>
                 <h1 className="text-4xl font-black mb-3">{playlist.title}</h1>
                 {playlist.description && (
                   <p className="text-lg text-foreground/70 mb-4">{playlist.description}</p>
+                )}
+                {playlist.is_approved && isOwner && (
+                  <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                    <div className="flex items-start gap-2 text-sm text-green-400">
+                      <Icon name="Info" size={16} className="mt-0.5" />
+                      <span>Эта подборка одобрена редакцией и доступна всем пользователям. Редактирование и удаление невозможны.</span>
+                    </div>
+                  </div>
                 )}
                 <div className="flex items-center gap-4 text-sm text-foreground/60">
                   <div className="flex items-center gap-2">
