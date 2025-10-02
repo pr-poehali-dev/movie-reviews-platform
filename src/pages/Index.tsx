@@ -1,16 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import { authService } from '@/lib/auth';
+import { authService, playlistsService } from '@/lib/auth';
 
 const Index = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Главная');
+  const [playlists, setPlaylists] = useState<any[]>([]);
 
   const navItems = ['Главная', 'Рецензии', 'Подборки', 'Новинки', 'Блог'];
+
+  useEffect(() => {
+    loadPlaylists();
+  }, []);
+
+  const loadPlaylists = async () => {
+    try {
+      const data = await playlistsService.getPublicPlaylists();
+      setPlaylists(data.slice(0, 2));
+    } catch (error) {
+      console.error('Error loading playlists:', error);
+    }
+  };
 
   const featuredMovies = [
     {
@@ -224,49 +238,79 @@ const Index = () => {
               <h3 className="text-3xl font-bold mb-2">Тематические подборки</h3>
               <p className="text-foreground/60">Кураторские списки для любого настроения</p>
             </div>
-            <Button variant="ghost" className="gap-2 text-primary hover:text-primary/80">
+            <Button 
+              variant="ghost" 
+              className="gap-2 text-primary hover:text-primary/80"
+              onClick={() => navigate('/playlists')}
+            >
               Все подборки
               <Icon name="ArrowRight" size={18} />
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl mb-2">Лучшие триллеры 2024</CardTitle>
-                    <CardDescription>15 фильмов, которые держат в напряжении до последней секунды</CardDescription>
-                  </div>
-                  <Icon name="List" size={24} className="text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button className="gap-2 bg-primary hover:bg-primary/90">
-                  <Icon name="Play" size={16} />
-                  Смотреть подборку
+          {playlists.length === 0 ? (
+            <Card className="bg-card border-border p-12 text-center">
+              <Icon name="List" size={64} className="mx-auto mb-4 text-muted-foreground" />
+              <h4 className="text-xl font-bold mb-2">Подборок пока нет</h4>
+              <p className="text-foreground/60 mb-6">
+                Создайте первую подборку и поделитесь своими любимыми фильмами
+              </p>
+              {authService.isAuthenticated() && (
+                <Button
+                  onClick={() => navigate('/create-playlist')}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  Создать подборку
                 </Button>
-              </CardContent>
+              )}
             </Card>
-
-            <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl mb-2">Недооценённые шедевры</CardTitle>
-                    <CardDescription>Фильмы, которые заслуживают большего внимания</CardDescription>
-                  </div>
-                  <Icon name="Sparkles" size={24} className="text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button className="gap-2 bg-primary hover:bg-primary/90">
-                  <Icon name="Play" size={16} />
-                  Смотреть подборку
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {playlists.map((playlist) => (
+                <Card 
+                  key={playlist.id}
+                  className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/playlist/${playlist.id}`)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-2xl mb-2">{playlist.title}</CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {playlist.description || 'Без описания'}
+                        </CardDescription>
+                      </div>
+                      <Icon name="List" size={24} className="text-primary flex-shrink-0 ml-4" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm text-foreground/60">
+                        <div className="flex items-center gap-1">
+                          <Icon name="Film" size={14} />
+                          <span>{playlist.movies_count || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon name="User" size={14} />
+                          <span>{playlist.author_name || 'Аноним'}</span>
+                        </div>
+                      </div>
+                      <Button 
+                        className="gap-2 bg-primary hover:bg-primary/90"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/playlist/${playlist.id}`);
+                        }}
+                      >
+                        <Icon name="Play" size={16} />
+                        Смотреть
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

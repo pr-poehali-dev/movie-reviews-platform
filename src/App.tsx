@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import Review from "./pages/Review";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Playlists from "./pages/Playlists";
+import CreatePlaylist from "./pages/CreatePlaylist";
+import PlaylistDetail from "./pages/PlaylistDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +26,9 @@ const App = () => (
           <Route path="/review/:id" element={<Review />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/playlists" element={<Playlists />} />
+          <Route path="/create-playlist" element={<CreatePlaylist />} />
+          <Route path="/playlist/:id" element={<PlaylistDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

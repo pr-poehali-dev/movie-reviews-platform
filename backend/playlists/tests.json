@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get public playlists",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "playlists": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create playlist requires auth",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "create",
+        "title": "Test Playlist"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
